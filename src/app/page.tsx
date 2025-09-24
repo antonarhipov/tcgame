@@ -1,103 +1,180 @@
-import Image from "next/image";
+'use client';
+
+import React, { useState } from 'react';
+import { RunStateProvider } from '@/contexts/RunStateContext';
+import { GameLayout } from '@/components/GameLayout';
+import { ScalingMeter } from '@/components/ScalingMeter';
+import { StartScreen } from '@/components/StartScreen';
+import { StepScreen } from '@/components/StepScreen';
+import { FeedbackScreen } from '@/components/FeedbackScreen';
+import { FinaleScreen } from '@/components/FinaleScreen';
+import { Delta } from '@/lib/content-pack';
+
+type GameState = 'start' | 'step' | 'feedback' | 'finale';
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [gameState, setGameState] = useState<GameState>('start');
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  const handleStartNew = () => {
+    setGameState('step');
+  };
+
+  const handleResume = () => {
+    setGameState('step');
+  };
+
+  const handleChoiceMade = (choice: 'A' | 'B', delta: Delta) => {
+    // Choice is already applied to RunState in StepScreen
+    // Just transition to feedback
+    setGameState('feedback');
+  };
+
+  const handleAdvanceToFeedback = () => {
+    setGameState('feedback');
+  };
+
+  const handleContinueFromFeedback = () => {
+    // Check if we should go to finale or next step
+    // This will be determined by the current step in RunState
+    setGameState('step');
+  };
+
+  const handleViewFinale = () => {
+    setGameState('finale');
+  };
+
+  const handleStartOver = () => {
+    setGameState('start');
+  };
+
+  const renderGameContent = () => {
+    switch (gameState) {
+      case 'start':
+        return (
+          <StartScreen
+            onStartNew={handleStartNew}
+            onResume={handleResume}
+          />
+        );
+      
+      case 'step':
+        return (
+          <GameLayout meter={<ScalingMeter />}>
+            <StepScreen
+              onChoiceMade={handleChoiceMade}
+              onAdvanceToFeedback={handleAdvanceToFeedback}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+          </GameLayout>
+        );
+      
+      case 'feedback':
+        return (
+          <GameLayout meter={<ScalingMeter />}>
+            <FeedbackScreen
+              onContinue={handleContinueFromFeedback}
+              onViewFinale={handleViewFinale}
+            />
+          </GameLayout>
+        );
+      
+      case 'finale':
+        return (
+          <GameLayout meter={<ScalingMeter />}>
+            <FinaleScreen
+              onStartOver={handleStartOver}
+            />
+          </GameLayout>
+        );
+      
+      default:
+        return (
+          <StartScreen
+            onStartNew={handleStartNew}
+            onResume={handleResume}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        );
+    }
+  };
+
+  return (
+    <RunStateProvider>
+      <GameFlowManager
+        gameState={gameState}
+        setGameState={setGameState}
+        onViewFinale={handleViewFinale}
+      >
+        {renderGameContent()}
+      </GameFlowManager>
+    </RunStateProvider>
   );
+}
+
+/**
+ * Game flow manager that handles automatic state transitions
+ * based on RunState changes
+ */
+interface GameFlowManagerProps {
+  children: React.ReactNode;
+  gameState: GameState;
+  setGameState: (state: GameState) => void;
+  onViewFinale: () => void;
+}
+
+function GameFlowManager({ children, gameState, setGameState, onViewFinale }: GameFlowManagerProps) {
+  const [lastProcessedStep, setLastProcessedStep] = React.useState(0);
+
+  // This component monitors RunState and handles automatic transitions
+  React.useEffect(() => {
+    // Import useRunState inside useEffect to avoid SSR issues
+    const { useRunState } = require('@/contexts/RunStateContext');
+    
+    // We'll handle state transitions based on game logic here
+    // For now, we'll rely on manual transitions from the components
+  }, [gameState, setGameState, onViewFinale]);
+
+  // Validate game state transitions based on RunState
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return; // Skip on server-side
+    
+    try {
+      const { useRunState } = require('@/contexts/RunStateContext');
+      const runStateHook = useRunState();
+      
+      if (!runStateHook) return;
+      
+      const { runState } = runStateHook;
+      
+      // Enforce step progression validation
+      if (gameState === 'step') {
+        // Users can only access steps they've unlocked
+        // Step 1 is always unlocked, subsequent steps require completing previous ones
+        const maxUnlockedStep = Math.min(runState.choices.length + 1, 5);
+        
+        if (runState.currentStep > maxUnlockedStep) {
+          // User is trying to access a step they haven't unlocked
+          console.warn(`Step ${runState.currentStep} not unlocked. Max unlocked: ${maxUnlockedStep}`);
+          // Reset to the highest unlocked step
+          runStateHook.dispatch({ 
+            type: 'LOAD_FROM_STORAGE', 
+            gameState: { 
+              ...runState, 
+              currentStep: maxUnlockedStep 
+            } 
+          });
+        }
+      }
+      
+      // Auto-navigate to finale after completing step 5
+      if (gameState === 'feedback' && runState.currentStep >= 5 && runState.choices.length >= 5) {
+        // All steps completed, should go to finale
+        setTimeout(() => onViewFinale(), 100);
+      }
+      
+    } catch (error) {
+      // Handle cases where useRunState is not available (e.g., outside provider)
+      console.warn('GameFlowManager: RunState not available', error);
+    }
+  }, [gameState, setGameState, onViewFinale]);
+
+  return <>{children}</>;
 }
