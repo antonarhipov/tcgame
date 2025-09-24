@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useRunState } from '@/contexts/RunStateContext';
-import { getMeterTier, getInsights } from '@/lib/scaling-meter';
+import { getMeterTier, getInsights, mulberry32 } from '@/lib/scaling-meter';
+import { getUnluckMessage } from '@/lib/content-pack';
 import { toPng } from 'html-to-image';
 
 interface FinaleScreenProps {
@@ -214,37 +215,54 @@ export function FinaleScreen({ onStartOver }: FinaleScreenProps) {
             📊 Your Decision Journey
           </h2>
           <div className="space-y-3">
-            {choicesSummary.map((choice, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-white dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600">
-                <div className="flex-1">
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    Step {choice.step}: Option {choice.choice}
-                  </span>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {choice.label}
-                  </p>
+            {choicesSummary.map((choice, index) => {
+              const hist = runState.history[index];
+              const unluckApplied = Boolean(hist?.unluckApplied);
+              const luckFactorPct = hist?.luckFactor != null ? Math.round((hist.luckFactor as number) * 100) : null;
+              const unluckRng = mulberry32(runState.seed + index);
+              const unluckMsg = unluckApplied
+                ? (getUnluckMessage(currentPack.steps[index], choice.choice as 'A' | 'B', unluckRng) || null)
+                : null;
+              return (
+                <div key={index} className="flex items-center justify-between p-3 bg-white dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600">
+                  <div className="flex-1 pr-3">
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      Step {choice.step}: Option {choice.choice}
+                    </span>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {choice.label}
+                    </p>
+                    {unluckApplied && (
+                      <div className="mt-2 inline-flex items-start gap-2 rounded-md bg-red-50 dark:bg-red-900/20 px-2.5 py-1.5 border border-red-200 dark:border-red-800">
+                        <span className="text-red-600 dark:text-red-400 text-xs font-semibold">Unluck</span>
+                        <span className="text-xs text-red-700 dark:text-red-300">
+                          {unluckMsg || 'Unluck event — gains reduced'}{luckFactorPct ? ` (gains cut to ${luckFactorPct}%)` : ''}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2 justify-end min-w-[180px]">
+                    {Object.entries(choice.delta).map(([key, value]) => {
+                      if (value === 0) return null;
+                      return (
+                        <span
+                          key={key}
+                          className={`
+                            inline-flex items-center px-2 py-1 rounded text-xs font-medium
+                            ${value > 0 
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
+                              : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                            }
+                          `}
+                        >
+                          {key}: {value > 0 ? '+' : ''}{value}
+                        </span>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="flex space-x-2">
-                  {Object.entries(choice.delta).map(([key, value]) => {
-                    if (value === 0) return null;
-                    return (
-                      <span
-                        key={key}
-                        className={`
-                          inline-flex items-center px-2 py-1 rounded text-xs font-medium
-                          ${value > 0 
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
-                            : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                          }
-                        `}
-                      >
-                        {key}: {value > 0 ? '+' : ''}{value}
-                      </span>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 

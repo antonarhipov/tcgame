@@ -157,7 +157,10 @@ export function RunStateProvider({ children }: RunStateProviderProps) {
           typeof parsedData.seed === 'number' &&
           Array.isArray(parsedData.choices) &&
           parsedData.effective &&
-          typeof parsedData.effective === 'object'
+          typeof parsedData.effective === 'object' &&
+          Array.isArray(parsedData.history) &&
+          // Minimal per-entry validation to keep optional fields like unluckApplied/luckFactor intact
+          parsedData.history.every((entry: any) => entry && typeof entry.meter === 'number')
         );
 
         if (isValidGameState) {

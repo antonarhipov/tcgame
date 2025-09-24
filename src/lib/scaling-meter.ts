@@ -33,6 +33,9 @@ export interface MeterResult {
   momentum: number;     // Momentum bonus applied
   randomness: number;   // Random adjustment applied
   rubberBand: boolean;  // Whether rubber-band was applied
+  // Unluck info (if applied on this step)
+  unluckApplied?: boolean; // default false when omitted
+  luckFactor?: number | null; // factor in [0.4,0.7] when applied
 }
 
 // Run state including seed and history
@@ -75,6 +78,12 @@ export interface MeterConfig {
     threshold: number;
     bonus: number;
   };
+
+  // Unluck configuration (see docs/unluck.md)
+  unluck: {
+    probability: number; // e.g., 0.10 means 10% chance per step
+    factorRange: [number, number]; // e.g., [0.4, 0.7]
+  };
 }
 
 // Default configuration based on docs/scaling-meter.md
@@ -98,6 +107,11 @@ export const DEFAULT_CONFIG: MeterConfig = {
   rubberBand: {
     threshold: 30,
     bonus: 2,
+  },
+  // Unluck defaults disabled to preserve deterministic tests until UI wiring is ready
+  unluck: {
+    probability: 0.9,
+    factorRange: [0.4, 0.7],
   },
 };
 
@@ -233,21 +247,45 @@ export function stepUpdate(
   config: MeterConfig = DEFAULT_CONFIG
 ): { newRunState: RunState; result: MeterResult } {
   const rng = mulberry32(runState.seed + runState.stepCount);
-  
+
   // Apply rubber-band from previous step if needed
   let currentState = runState.state;
   const lastResult = runState.history[runState.history.length - 1];
   if (lastResult?.rubberBand) {
     currentState = applyRubberBand(currentState, config);
   }
-  
-  // Apply choice delta
-  const newState = applyChoice(currentState, delta);
-  
-  // Compute effective state and meter
+
+  // Unluck roll (consumes RNG before meter randomness)
+  let unluckApplied = false;
+  let luckFactor: number | null = null;
+  let appliedDelta: Delta = delta;
+  const { unluck } = config;
+  if (unluck && unluck.probability > 0) {
+    const roll = rng();
+    if (roll < unluck.probability) {
+      const [minF, maxF] = unluck.factorRange;
+      const factor = rng() * (maxF - minF) + minF;
+      luckFactor = factor;
+      unluckApplied = true;
+      // Scale only positive components; round to nearest int to satisfy Delta type
+      appliedDelta = {
+        R: delta.R > 0 ? Math.round(delta.R * factor) : delta.R,
+        U: delta.U > 0 ? Math.round(delta.U * factor) : delta.U,
+        S: delta.S > 0 ? Math.round(delta.S * factor) : delta.S,
+        C: delta.C > 0 ? Math.round(delta.C * factor) : delta.C,
+        I: delta.I > 0 ? Math.round(delta.I * factor) : delta.I,
+      };
+    }
+  }
+
+  // Apply choice delta (possibly scaled)
+  const newState = applyChoice(currentState, appliedDelta);
+
+  // Compute effective state and meter using the same rng (after unluck rolls)
   const effective = computeEffective(newState, config);
-  const result = computeMeter(effective, runState.lastMeter, rng, config);
-  
+  const baseResult = computeMeter(effective, runState.lastMeter, rng, config);
+  const result: MeterResult = { ...baseResult, unluckApplied, luckFactor };
+
   // Update run state
   const newRunState: RunState = {
     state: newState,
@@ -256,7 +294,7 @@ export function stepUpdate(
     stepCount: runState.stepCount + 1,
     history: [...runState.history, result],
   };
-  
+
   return { newRunState, result };
 }
 

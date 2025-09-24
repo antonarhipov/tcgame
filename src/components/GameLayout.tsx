@@ -1,6 +1,9 @@
 'use client';
 
 import React from 'react';
+import { useRunState } from '@/contexts/RunStateContext';
+import { getUnluckMessage } from '@/lib/content-pack';
+import { mulberry32 } from '@/lib/scaling-meter';
 
 interface GameLayoutProps {
   children: React.ReactNode;
@@ -57,11 +60,33 @@ export function GameLayout({ children, console, meter, className = '' }: GameLay
  * Placeholder console component for Phase 3
  */
 function ConsolePlaceholder() {
+  const { runState, contentPack } = useRunState();
   const [logs, setLogs] = React.useState<string[]>([
     '> Initializing AI Cofounder development environment...',
     '> Loading startup simulation engine...',
     '> Ready for founder decisions! 🚀'
   ]);
+
+  const lastUnluckIndexRef = React.useRef<number>(-1);
+
+  // Append Unluck message when event occurs on a step
+  React.useEffect(() => {
+    const stepIndex = runState.history.length - 1;
+    if (stepIndex < 0) return;
+    const last = runState.history[stepIndex];
+    if (!last?.unluckApplied) return;
+    if (!runState.choices[stepIndex]) return;
+    if (lastUnluckIndexRef.current === stepIndex) return;
+    lastUnluckIndexRef.current = stepIndex;
+
+    const choice = runState.choices[stepIndex].choice;
+    const step = contentPack.steps[stepIndex];
+    const rng = mulberry32(runState.seed + stepIndex);
+    const msg = getUnluckMessage(step, choice, rng) || 'Unluck event — gains reduced';
+    const pct = last.luckFactor != null ? Math.round((last.luckFactor as number) * 100) : null;
+    const line = `> ⚠️ Unluck: ${msg}${pct ? ` (gains cut to ${pct}%)` : ''}`;
+    setLogs(prev => [...prev, line].slice(-20));
+  }, [runState.history.length, runState.seed, contentPack.steps, runState.choices]);
 
   // Simulate some activity
   React.useEffect(() => {
@@ -74,12 +99,10 @@ function ConsolePlaceholder() {
         '> Processing founder feedback...',
         '> Updating investor confidence models...'
       ];
-      
       setLogs(prev => {
         const newLog = messages[Math.floor(Math.random() * messages.length)];
         const updated = [...prev, newLog];
-        // Keep only last 10 logs
-        return updated.slice(-10);
+        return updated.slice(-20);
       });
     }, 3000);
 
@@ -87,17 +110,22 @@ function ConsolePlaceholder() {
   }, []);
 
   return (
-    <div className="h-full flex flex-col font-mono text-sm">
+    <div className="h-full flex flex-col font-mono text-sm" aria-live="polite">
       <div className="flex-1 overflow-y-auto p-4 space-y-1">
-        {logs.map((log, index) => (
-          <div 
-            key={index} 
-            className="text-green-600 dark:text-green-400 animate-pulse"
-            style={{ animationDelay: `${index * 100}ms` }}
-          >
-            {log}
-          </div>
-        ))}
+        {logs.map((log, index) => {
+          const isUnluck = log.includes('⚠️ Unluck');
+          return (
+            <div 
+              key={index}
+              className={isUnluck
+                ? 'text-red-600 dark:text-red-400'
+                : 'text-green-600 dark:text-green-400 animate-pulse'}
+              style={!isUnluck ? { animationDelay: `${index * 100}ms` } : undefined}
+            >
+              {log}
+            </div>
+          );
+        })}
       </div>
       <div className="p-4 border-t border-gray-200 dark:border-gray-700">
         <div className="flex items-center space-x-2">

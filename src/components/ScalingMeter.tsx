@@ -35,6 +35,12 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
   const insights = lastResult 
     ? getInsights(lastResult.effective, runState.choices[runState.choices.length - 1]?.delta || { R: 0, U: 0, S: 0, C: 0, I: 0 })
     : { drivers: [], bottleneck: null };
+
+  // Unluck state from last result
+  const unluckApplied = Boolean(lastResult && lastResult.unluckApplied);
+  const luckFactor = typeof lastResult?.luckFactor === 'number' ? lastResult!.luckFactor as number : null;
+  const [showUnluckOverlay, setShowUnluckOverlay] = React.useState(true);
+  const unluckPercent = luckFactor !== null ? Math.round(luckFactor * 100) : null;
   
   // Individual dimension data
   const dimensions = [
@@ -91,17 +97,33 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
           </div>
         </div>
         
-        {/* Delta indicator */}
-        {delta !== 0 && (
-          <div className={`flex items-center space-x-1 text-sm font-medium ${
-            delta > 0 
-              ? 'text-green-600 dark:text-green-400' 
-              : 'text-red-600 dark:text-red-400'
-          }`}>
-            <span>{delta > 0 ? '↗' : '↘'}</span>
-            <span>{delta > 0 ? '+' : ''}{delta}</span>
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          {/* Delta indicator */}
+          {delta !== 0 && (
+            <div className={`flex items-center space-x-1 text-sm font-medium ${
+              delta > 0 
+                ? 'text-green-600 dark:text-green-400' 
+                : 'text-red-600 dark:text-red-400'
+            }`}>
+              <span>{delta > 0 ? '↗' : '↘'}</span>
+              <span>{delta > 0 ? '+' : ''}{delta}</span>
+            </div>
+          )}
+          {/* Toggle for Unluck overlay */}
+          {unluckApplied && (
+            <button
+              type="button"
+              aria-pressed={showUnluckOverlay}
+              aria-label="Toggle Unluck info"
+              title="Toggle Unluck info"
+              className="text-xs px-2 py-1 rounded border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/30"
+              onClick={() => setShowUnluckOverlay(v => !v)}
+              data-testid="unluck-toggle"
+            >
+              Unluck
+            </button>
+          )}
+        </div>
       </div>
       
       {/* Main meter bar */}
@@ -112,7 +134,7 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
           </span>
           <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-6 relative overflow-hidden">
             <div 
-              className="bg-gradient-to-r from-blue-500 to-purple-600 h-6 rounded-full transition-all duration-700 ease-out"
+              className="bg-gradient-to-r from-blue-500 to-purple-600 h-6 rounded-full transition-all duration-700 ease-out relative"
               style={{ width: `${Math.max(2, currentMeter)}%` }}
               role="progressbar"
               aria-valuenow={currentMeter}
@@ -122,12 +144,30 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
             >
               {/* Animated shimmer effect for visual appeal */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
+              {/* Red spark animation overlay when Unluck applied */}
+              {unluckApplied && (
+                <div aria-hidden="true" data-testid="unluck-spark" className="absolute inset-0 pointer-events-none">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(239,68,68,0.35),transparent_60%)] animate-pulse"></div>
+                </div>
+              )}
             </div>
           </div>
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 text-right">
             {currentMeter}/100
           </span>
         </div>
+
+        {/* Reduced delta visualization when Unluck applied */}
+        {unluckApplied && delta > 0 && (
+          <div className="flex items-center gap-2 pl-20">
+            <div className="h-2 w-40 bg-gray-300 dark:bg-gray-600 rounded overflow-hidden" aria-hidden="true" data-testid="reduced-delta-bar">
+              <div className="h-2 bg-red-500/50" style={{ width: `${unluckPercent ?? 60}%` }}></div>
+            </div>
+            <span className="text-xs text-red-700 dark:text-red-300">
+              Gains cut{unluckPercent ? ` to ${unluckPercent}%` : ''} this step
+            </span>
+          </div>
+        )}
 
         {/* Individual dimension bars */}
         {dimensions.map((dim, index) => (
@@ -154,6 +194,22 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
             </span>
           </div>
         ))}
+
+        {/* Unluck overlay/tooltip (toggleable, non-blocking) */}
+        {unluckApplied && showUnluckOverlay && (
+          <div
+            className="mt-2 inline-flex items-center gap-2 px-2 py-1 rounded border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300"
+            role="note"
+            aria-live="polite"
+            id="unluck-overlay"
+            data-testid="unluck-overlay"
+          >
+            <span className="text-xs font-medium">Unluck event — gains reduced</span>
+            {unluckPercent !== null && (
+              <span className="text-[10px] opacity-80">(cut to {unluckPercent}%)</span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Insights section */}
@@ -202,7 +258,7 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
             delta > 0 ? `Increased by ${delta} points.` : 
             delta < 0 ? `Decreased by ${Math.abs(delta)} points.` : 
             'No change.'
-          }`
+          }${unluckApplied && unluckPercent !== null ? ` Unluck: gains cut to ${unluckPercent}% this step.` : ''}`
         )}
       </div>
     </div>

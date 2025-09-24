@@ -21,6 +21,8 @@ export const ChoiceSchema = z.object({
   label: z.string().min(1).max(200), // Short description of the choice
   body: z.string().min(1).max(1000), // Detailed description/demo text
   delta: DeltaSchema, // Impact on the scaling meter dimensions
+  // Optional contextual Unluck messages for this option (see docs/unluck.md)
+  unluckMessages: z.array(z.string().min(1).max(300)).optional(),
 });
 
 // Step represents one level/stage of the game
@@ -70,4 +72,16 @@ export const EMPTY_DELTA: Delta = { R: 0, U: 0, S: 0, C: 0, I: 0 };
 // Helper to create a delta with only specified values
 export function createDelta(partial: Partial<Delta>): Delta {
   return { ...EMPTY_DELTA, ...partial };
+}
+
+// Deterministically pick an Unluck message for a given step and choice using provided RNG
+export function getUnluckMessage(
+  step: Step,
+  choice: 'A' | 'B',
+  rng: () => number
+): string | null {
+  const list = choice === 'A' ? step.optionA.unluckMessages : step.optionB.unluckMessages;
+  if (!list || list.length === 0) return null;
+  const index = Math.floor(rng() * list.length);
+  return list[index] ?? null;
 }

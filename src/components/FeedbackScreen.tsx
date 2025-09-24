@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRunState, useCurrentStep } from '@/contexts/RunStateContext';
-import { getMeterTier, getInsights } from '@/lib/scaling-meter';
+import { getMeterTier, getInsights, mulberry32 } from '@/lib/scaling-meter';
+import { getUnluckMessage } from '@/lib/content-pack';
 
 interface FeedbackScreenProps {
   onContinue: () => void;
@@ -16,6 +17,8 @@ export function FeedbackScreen({ onContinue, onViewFinale }: FeedbackScreenProps
   const { runState, dispatch } = useRunState();
   const { currentStep, stepData } = useCurrentStep();
   const continueRef = useRef<HTMLButtonElement>(null);
+  const lastResult = runState.history[runState.history.length - 1];
+  const [showUnluck, setShowUnluck] = useState<boolean>(Boolean(lastResult?.unluckApplied));
 
   // Get the last choice made
   const lastChoice = runState.choices[runState.choices.length - 1];
@@ -26,6 +29,14 @@ export function FeedbackScreen({ onContinue, onViewFinale }: FeedbackScreenProps
   const meterTier = getMeterTier(meterValue);
   const insights = getInsights(runState.effective, lastChoice?.delta || { R: 0, U: 0, S: 0, C: 0, I: 0 });
 
+  // Unluck popup data
+  const unluckApplied = Boolean(lastResult?.unluckApplied);
+  const luckFactorPct = lastResult?.luckFactor != null ? Math.round((lastResult.luckFactor as number) * 100) : null;
+  const unluckRng = mulberry32(runState.seed + Math.max(0, runState.stepCount - 1));
+  const unluckMsg = (unluckApplied && stepData && lastChoice)
+    ? (getUnluckMessage(stepData, lastChoice.choice, unluckRng) || null)
+    : null;
+
   useEffect(() => {
     // Focus continue button when component mounts
     if (continueRef.current) {
@@ -33,18 +44,29 @@ export function FeedbackScreen({ onContinue, onViewFinale }: FeedbackScreenProps
     }
   }, []);
 
+  // Auto-dismiss Unluck popup after timeout
+  useEffect(() => {
+    if (showUnluck) {
+      const timer = setTimeout(() => setShowUnluck(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showUnluck]);
+
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
         handleContinue();
+      } else if (event.key === 'Escape' && showUnluck) {
+        event.preventDefault();
+        setShowUnluck(false);
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [showUnluck]);
 
   const handleContinue = () => {
     if (currentStep < 5) {
@@ -179,6 +201,40 @@ export function FeedbackScreen({ onContinue, onViewFinale }: FeedbackScreenProps
                   <strong>Bottleneck:</strong> {insights.bottleneck}
                 </p>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Unluck popup balloon in console area */}
+        {unluckApplied && showUnluck && (
+          <div role="status" aria-live="polite" className="relative">
+            <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-100 rounded-xl p-4 shadow-md mb-4">
+              <div className="flex items-start">
+                <div className="mr-3 text-xl" aria-hidden>⚠️</div>
+                <div className="flex-1">
+                  <div className="font-semibold mb-1">Unluck event — gains reduced</div>
+                  <div className="text-sm">
+                    {unluckMsg ?? 'Something outside your control reduced your gains this step.'}
+                    {typeof luckFactorPct === 'number' && (
+                      <span> (cut to {luckFactorPct}% this step)</span>
+                    )}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowUnluck(false)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setShowUnluck(false);
+                    }
+                  }}
+                  className="ml-3 text-sm px-2 py-1 rounded border border-red-300 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500"
+                  aria-label="Dismiss Unluck message"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         )}

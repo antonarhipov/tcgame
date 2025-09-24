@@ -554,3 +554,82 @@ describe('Balance reachability (greedy strategy)', () => {
     expect(rs.lastMeter).toBeGreaterThanOrEqual(80);
   });
 });
+
+
+// --- Unluck feature tests ---
+describe('Unluck feature', () => {
+  it('scales only positive deltas and keeps factor within bounds', () => {
+    const base = initializeRunState(424242);
+    const delta = createDelta({ R: 10, U: 5, S: -3, C: 0, I: 4 });
+    const config: MeterConfig = {
+      ...DEFAULT_CONFIG,
+      momentumBonus: 0,
+      randomnessRange: [0, 0],
+      unluck: { probability: 1, factorRange: [0.4, 0.7] },
+    };
+
+    const { newRunState, result } = stepUpdate(base, delta, config);
+
+    expect(result.unluckApplied).toBe(true);
+    expect(result.luckFactor).not.toBeNull();
+    const f = result.luckFactor as number;
+    expect(f).toBeGreaterThanOrEqual(0.4);
+    expect(f).toBeLessThanOrEqual(0.7);
+
+    // Since initial state is zeros, new state equals applied delta.
+    expect(newRunState.state.R).toBe(Math.round(10 * f));
+    expect(newRunState.state.U).toBe(Math.round(5 * f));
+    expect(newRunState.state.S).toBe(-3); // negative unchanged
+    expect(newRunState.state.C).toBe(0);  // zero unchanged
+    expect(newRunState.state.I).toBe(Math.round(4 * f));
+  });
+
+  it('triggers at roughly configured probability (~10%) across many trials', () => {
+    let rs = initializeRunState(13579);
+    const trials = 400;
+    const delta = createDelta({ R: 5, U: 5, S: 0, C: 0, I: 0 });
+    const config: MeterConfig = {
+      ...DEFAULT_CONFIG,
+      momentumBonus: 0,
+      randomnessRange: [0, 0],
+      unluck: { probability: 0.10, factorRange: [0.4, 0.7] },
+    };
+
+    let hits = 0;
+    for (let i = 0; i < trials; i++) {
+      const { newRunState, result } = stepUpdate(rs, delta, config);
+      if (result.unluckApplied) hits++;
+      rs = newRunState;
+    }
+    const rate = hits / trials;
+    expect(rate).toBeGreaterThan(0.05);
+    expect(rate).toBeLessThan(0.15);
+  });
+
+  it('reduces resulting meter compared to no-unluck under zero randomness and momentum', () => {
+    const seed = 999;
+    const base1 = initializeRunState(seed);
+    const base2 = initializeRunState(seed);
+    const delta = createDelta({ R: 8, U: 0, S: 2, C: 4, I: 0 });
+
+    const cfgNo: MeterConfig = {
+      ...DEFAULT_CONFIG,
+      momentumBonus: 0,
+      randomnessRange: [0, 0],
+      unluck: { probability: 0, factorRange: [0.5, 0.5] },
+    };
+    const cfgYes: MeterConfig = {
+      ...DEFAULT_CONFIG,
+      momentumBonus: 0,
+      randomnessRange: [0, 0],
+      unluck: { probability: 1, factorRange: [0.5, 0.5] },
+    };
+
+    const resNo = stepUpdate(base1, delta, cfgNo).result;
+    const resYes = stepUpdate(base2, delta, cfgYes).result;
+
+    expect(resNo.unluckApplied || false).toBe(false);
+    expect(resYes.unluckApplied || false).toBe(true);
+    expect(resYes.meter).toBeLessThanOrEqual(resNo.meter);
+  });
+});

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { ScalingMeter } from '../ScalingMeter';
 import { RunStateProvider } from '@/contexts/RunStateContext';
@@ -228,4 +229,66 @@ describe('ScalingMeter', () => {
     const overallBar = screen.getByRole('progressbar', { name: /Overall scaling meter/ });
     expect(overallBar).toHaveClass('transition-all', 'duration-700', 'ease-out');
   });
+});
+
+it('shows red-spark animation and reduced delta bar when Unluck is applied', () => {
+  const unluckRunState = {
+    ...mockRunState,
+    history: [
+      { ...mockRunState.history[0], meter: 35 } as MeterResult,
+      { ...mockRunState.history[1], meter: 45, unluckApplied: true, luckFactor: 0.5 } as MeterResult,
+    ],
+  };
+
+  mockUseRunState.mockReturnValueOnce({
+    runState: unluckRunState,
+    contentPack: {},
+    dispatch: vi.fn(),
+    saveToStorage: vi.fn(),
+    loadFromStorage: vi.fn(),
+    resetRun: vi.fn(),
+  });
+
+  render(<ScalingMeter />);
+
+  // Spark overlay present
+  expect(screen.getByTestId('unluck-spark')).toBeInTheDocument();
+
+  // Reduced delta bar present and overlay text includes percentage
+  expect(screen.getByTestId('reduced-delta-bar')).toBeInTheDocument();
+  expect(screen.getByText(/Gains cut/)).toBeInTheDocument();
+});
+
+it('allows toggling the Unluck overlay visibility', async () => {
+  const unluckRunState = {
+    ...mockRunState,
+    history: [
+      { ...mockRunState.history[0], meter: 35 } as MeterResult,
+      { ...mockRunState.history[1], meter: 45, unluckApplied: true, luckFactor: 0.5 } as MeterResult,
+    ],
+  };
+
+  mockUseRunState.mockReturnValue({
+    runState: unluckRunState,
+    contentPack: {},
+    dispatch: vi.fn(),
+    saveToStorage: vi.fn(),
+    loadFromStorage: vi.fn(),
+    resetRun: vi.fn(),
+  });
+
+  render(<ScalingMeter />);
+
+  let toggle = screen.getByTestId('unluck-toggle');
+  // Overlay visible initially
+  expect(screen.getByTestId('unluck-overlay')).toBeInTheDocument();
+
+  // Hide overlay
+  const user = userEvent.setup();
+  await user.click(toggle);
+  await waitFor(() => expect(screen.queryByTestId('unluck-overlay')).not.toBeInTheDocument());
+
+  // Show overlay again
+  await user.click(screen.getByTestId('unluck-toggle'));
+  await waitFor(() => expect(screen.getByTestId('unluck-overlay')).toBeInTheDocument());
 });
