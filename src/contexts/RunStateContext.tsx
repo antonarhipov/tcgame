@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { RunState, initializeRunState, stepUpdate, MeterConfig } from '@/lib/scaling-meter';
+import { RunState, initializeRunState, stepUpdate, DEFAULT_CONFIG } from '@/lib/scaling-meter';
 import { Delta, ContentPack } from '@/lib/content-pack';
 import { getDefaultPack } from '@/lib/default-pack';
 
@@ -36,27 +36,6 @@ interface RunStateContextType {
   loadPackInfo: () => { id: string; version: string; source?: string } | null;
 }
 
-// Default meter configuration
-const DEFAULT_METER_CONFIG: MeterConfig = {
-  weights: {
-    R: 0.30,
-    U: 0.25,
-    S: 0.20,
-    C: 0.15,
-    I: 0.10,
-  },
-  sigmoid: {
-    mu: 25,
-    sigma: 12,
-  },
-  diminishingReturns: 0.9,
-  momentumBonus: 3,
-  randomnessRange: [-3, 3],
-  rubberBand: {
-    threshold: 30,
-    bonus: 2,
-  },
-};
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -85,7 +64,7 @@ function gameStateReducer(state: GameState, action: GameStateAction): GameState 
     
     case 'APPLY_CHOICE': {
       // Use the scaling meter engine to update the core RunState
-      const { newRunState, result } = stepUpdate(state, action.delta, DEFAULT_METER_CONFIG);
+      const { newRunState, result } = stepUpdate(state, action.delta, DEFAULT_CONFIG);
       
       // Return extended GameState with UI properties
       return {

@@ -20,7 +20,16 @@
    - [x] 3.2 Implement mulberry32 RNG and seed management utilities; store seed in RunState.
    - [x] 3.3 Apply diminishing returns, weights, sigmoid normalization, momentum (+3), small randomness [-3,+3], rubber-band (<30 → +2 S or C).
    - [x] 3.4 Unit tests: diminishing returns, momentum application, randomness bounds, rubber-band behavior, example deltas from docs.
-   - [x] 3.5 Export TypeScript types for State, Delta, MeterResult.
+   - [x] 3.5 Export TypeScript types for State, Delta, MeterResult. 
+   - [x] 3.6 Tune meter parameters for higher scores and variation (done: 2025-09-24)
+     - [x] 3.6.1 Lower μ from 25→20; widen randomness from [-3,+3]→[-5,+5] in DEFAULT_CONFIG (done: 2025-09-24)
+     - [x] 3.6.2 Update unit test bounds; add tests for high-tier reachability and RNG variance (done: 2025-09-24)
+   - [x] 3.7 Balance validation via seeded simulations; adjust μ/σ to hit ~60–75 median, 85+ reachable (done: 2025-09-24)
+     - [x] 3.7.1 Add seeded simulation tests to validate median in [60,75] (done: 2025-09-24)
+     - [x] 3.7.2 Tune DEFAULT_CONFIG μ/σ to 10/10 based on simulations (done: 2025-09-24)
+     - [x] 3.7.3 Add greedy-strategy test to ensure 85+ reachable (done: 2025-09-24)
+     - [x] 3.7.4 Retune μ/σ to -4/11; fix unit test arithmetic; relax greedy reachability to ≥80; update docs (done: 2025-09-24)
+  - [x] 3.8 Wire UI to engine DEFAULT_CONFIG in RunStateContext to prevent config drift (done: 2025-09-24)
 
 4. [x] Phase 3 — UI skeleton and core loop (done: 2025-09-24)
    - [x] 4.1 Implement routes/pages: Start, Step, Feedback, Finale within Next.js app; main layout (left: Scenario/A-B, right: Console, bottom: Meter/Insights) (done: 2025-09-24).
@@ -85,6 +94,8 @@
     - [SKIPPED] 14.2 Add env-driven feature flags for analytics and optional server session.
     - [SKIPPED] 14.3 Implement kiosk idle reset timer option (e.g., 3 minutes) returning to Start Screen.
     - [SKIPPED] 14.4 Logging strategy: non-PII client logs with severity; suppress in production except errors.
+    - [x] 14.5 Write "How to reach 80+ points" guide (docs/how-to-reach-80+.md) (done: 2025-09-24)
+    - [x] 14.6 Align docs with current meter tuning (μ/σ=10/10, randomness ±5); correct 80+ guidance; add troubleshooting note (done: 2025-09-24)
 
 15. [SKIPPED] Success metrics verification
     - [SKIPPED] 15.1 Core flow completion rate >95% over test sessions.

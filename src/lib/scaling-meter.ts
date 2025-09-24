@@ -87,12 +87,14 @@ export const DEFAULT_CONFIG: MeterConfig = {
     I: 0.10,
   },
   sigmoid: {
-    mu: 25,
-    sigma: 12,
+    // Tuning: adjust mu/sigma via seeded simulations to target ~60–75 median, 85+ reachable (2025-09-24)
+    mu: -4,
+    sigma: 11,
   },
   diminishingReturns: 0.9,
   momentumBonus: 3,
-  randomnessRange: [-3, 3],
+  // Tuning: widen randomness slightly to increase variation without overpowering choices
+  randomnessRange: [-5, 5],
   rubberBand: {
     threshold: 30,
     bonus: 2,

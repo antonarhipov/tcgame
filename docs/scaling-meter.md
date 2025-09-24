@@ -48,18 +48,23 @@ Normalize and clamp:
 score_norm = 100 * sigmoid((score_raw - μ)/σ)
 meter = clamp(round(score_norm), 0, 100)
 
-•	Use μ ≈ 25, σ ≈ 12 (tune so a “balanced” run lands ~60–70).
+•	Use μ ≈ -4, σ ≈ 11 (tuned via seeded simulations; median ~60–75, greedy ≥80 reachable).
 •	sigmoid prevents impossible 0/100s and makes mid-range differences visible.
 
 4) Add controlled randomness (so runs feel fresh)
 
 Use mean-zero noise with tight bounds:
 
-ε ~ Uniform(-3, +3)   // or Normal(0, 2)
+ε ~ Uniform(-5, +5)   // or Normal(0, 2)
 meter = clamp(meter + ε, 0, 100)
 
 •	Keep randomness small vs. choice impact so players feel agency.
 •	Seed it with a per-session seed for reproducibility if you want a “fair mode”.
+
+Troubleshooting
+- If you see very low finals (e.g., ~27–29) on strong routes like 1A→2A→3A→4A→5B, you might be running an old build
+  or a cached config (older μ≈25/σ≈12, randomness ±3). Hard refresh/clear cache and ensure the app uses μ≈-4/σ≈11
+  and randomness ±5 (see DEFAULT_CONFIG in src/lib/scaling-meter.ts).
 
 
 5) Momentum & diminishing returns (feels real)
@@ -129,3 +134,8 @@ function applyChoice(choice) {
    •	Start playtests with Δ values ~20% smaller than you think; it’s easier to buff later.
    •	Tune μ/σ so “smart but imperfect” play lands ~75.
    •	Keep randomness ≤ 10% of a typical step’s effect.
+
+10) How to reach 80+
+- A solid, high-performing route to start with is: 1A → 2A → 3A → 4A → 5B.
+- With current tuning, expect ~60–75 on this route; to reach 80+, keep a rising streak and pick options maximizing projected raw after diminishing returns (a greedy heuristic may deviate at times).
+- See also: docs/how-to-reach-80+.md for step-by-step reasoning, momentum tips, and troubleshooting.
