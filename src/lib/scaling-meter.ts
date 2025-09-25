@@ -108,9 +108,8 @@ export const DEFAULT_CONFIG: MeterConfig = {
     threshold: 30,
     bonus: 2,
   },
-  // Unluck defaults disabled to preserve deterministic tests until UI wiring is ready
   unluck: {
-    probability: 0.9,
+    probability: 0.4,
     factorRange: [0.4, 0.7],
   },
 };
