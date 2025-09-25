@@ -137,8 +137,10 @@
 16. [x] Phase 16 — Layout optimization to eliminate vertical scroll (done: 2025-09-25)
 
 17. [x] Phase 17 — Compact choice options to eliminate vertical scroll in left panel (done: 2025-09-25)
-    - [x] 17.1 Remove dimension indicators (R, U, I, S, C) from ChoiceButton component in StepScreen.tsx (done: 2025-09-25)
-    - [x] 17.2 Keep choice titles and descriptions while removing the "Delta preview" section (lines 286-310) (done: 2025-09-25)
-    - [x] 17.3 Test that choice functionality remains intact after removing indicators (done: 2025-09-25)
-    - [x] 17.4 Verify that left panel no longer causes vertical scrolling with more compact choice boxes (done: 2025-09-25)
-    - [x] 17.5 Ensure keyboard navigation and accessibility features still work properly (done: 2025-09-25)
+
+18. [ ] Phase 18 — Remove redundant insights widget from left panel (2025-09-25)
+    - [ ] 18.1 Remove insights section from FeedbackScreen.tsx (lines 190-209) to eliminate redundancy
+    - [ ] 18.2 Verify insights functionality remains intact in right panel ScalingMeter component
+    - [ ] 18.3 Test that FeedbackScreen still displays properly without insights section
+    - [ ] 18.4 Ensure no broken imports or unused variables after removing insights from left panel
+    - [ ] 18.5 Confirm insights are only displayed in the right panel meter section, not duplicated

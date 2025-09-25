@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useRunState, useCurrentStep } from '@/contexts/RunStateContext';
-import { getMeterTier, getInsights, mulberry32 } from '@/lib/scaling-meter';
+import { getMeterTier, mulberry32 } from '@/lib/scaling-meter';
 import { getUnluckMessage } from '@/lib/content-pack';
 
 interface FeedbackScreenProps {
@@ -24,10 +24,9 @@ export function FeedbackScreen({ onContinue, onViewFinale }: FeedbackScreenProps
   const lastChoice = runState.choices[runState.choices.length - 1];
   const choiceData = lastChoice?.choice === 'A' ? stepData?.optionA : stepData?.optionB;
 
-  // Get current meter state and insights
+  // Get current meter state
   const meterValue = runState.lastMeter || 0;
   const meterTier = getMeterTier(meterValue);
-  const insights = getInsights(runState.effective, lastChoice?.delta || { R: 0, U: 0, S: 0, C: 0, I: 0 });
 
   // Unluck popup data
   const unluckApplied = Boolean(lastResult?.unluckApplied);
@@ -101,9 +100,9 @@ export function FeedbackScreen({ onContinue, onViewFinale }: FeedbackScreenProps
       <div className="space-y-8">
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="text-sm font-medium text-[var(--color-primary)]">
-            Step {currentStep} Complete
-          </div>
+          {/*<div className="text-sm font-medium text-[var(--color-primary)]">*/}
+          {/*  Step {currentStep} Complete*/}
+          {/*</div>*/}
           <h1 className="text-3xl font-bold text-[var(--text-hard)]">
             Choice Implemented!
           </h1>
@@ -187,26 +186,6 @@ export function FeedbackScreen({ onContinue, onViewFinale }: FeedbackScreenProps
           </div>
         </div>
 
-        {/* Insights */}
-        {insights && (
-          <div className="bg-[var(--surface-2)] rounded-md p-6 border border-[var(--border)]">
-            <h2 className="text-xl font-semibold text-[var(--text-hard)] mb-4">
-              💡 Insights
-            </h2>
-            <div className="space-y-2 text-[var(--text-average)]">
-              {insights.drivers.length > 0 && (
-                <p>
-                  <strong className="text-[var(--text-hard)]">Top Drivers:</strong> {insights.drivers.join(', ')}
-                </p>
-              )}
-              {insights.bottleneck && (
-                <p>
-                  <strong className="text-[var(--text-hard)]">Bottleneck:</strong> {insights.bottleneck}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
 
         {/* Unluck popup balloon in console area */}
         {unluckApplied && showUnluck && (
@@ -277,11 +256,6 @@ export function FeedbackScreen({ onContinue, onViewFinale }: FeedbackScreenProps
           >
             {isLastStep ? 'View Final Results' : `Continue to Step ${currentStep + 1}`}
           </button>
-        </div>
-
-        {/* Keyboard hint */}
-        <div className="text-center text-xs text-[var(--text-pale)]">
-          <p>💡 Press Enter or Space to continue</p>
         </div>
       </div>
     </div>
