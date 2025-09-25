@@ -135,9 +135,10 @@
     - [SKIPPED] 15.3 Crash-free sessions >99% locally; graceful fallbacks verified.
 
 16. [x] Phase 16 — Layout optimization to eliminate vertical scroll (done: 2025-09-25)
-    - [x] 16.1 Modify GameLayout.tsx to restructure right panel: console (top 1/3) + meter (bottom 2/3) (done: 2025-09-25)
-    - [x] 16.2 Update right panel CSS to use vertical flex layout instead of full-height console (done: 2025-09-25)
-    - [x] 16.3 Adjust ScalingMeter component sizing to fit in right panel space (remove max-w-4xl constraint) (done: 2025-09-25)
-    - [x] 16.4 Remove bottom meter section from GameLayout to eliminate vertical stacking (done: 2025-09-25)
-    - [x] 16.5 Test layout on different screen sizes to ensure no vertical scroll and proper responsiveness (done: 2025-09-25)
-    - [x] 16.6 Verify console and meter functionality remains intact after layout changes (done: 2025-09-25)
+
+17. [x] Phase 17 — Compact choice options to eliminate vertical scroll in left panel (done: 2025-09-25)
+    - [x] 17.1 Remove dimension indicators (R, U, I, S, C) from ChoiceButton component in StepScreen.tsx (done: 2025-09-25)
+    - [x] 17.2 Keep choice titles and descriptions while removing the "Delta preview" section (lines 286-310) (done: 2025-09-25)
+    - [x] 17.3 Test that choice functionality remains intact after removing indicators (done: 2025-09-25)
+    - [x] 17.4 Verify that left panel no longer causes vertical scrolling with more compact choice boxes (done: 2025-09-25)
+    - [x] 17.5 Ensure keyboard navigation and accessibility features still work properly (done: 2025-09-25)

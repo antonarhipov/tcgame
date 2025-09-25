@@ -282,32 +282,6 @@ const ChoiceButton = React.forwardRef<HTMLButtonElement, ChoiceButtonProps>(
               {choiceData.body}
             </p>
           </div>
-
-          {/* Delta preview */}
-          <div className="flex flex-wrap gap-2 pt-2 border-t border-[var(--divider)]">
-            {Object.entries(choiceData.delta).map(([key, value]) => {
-              if (value === 0) return null;
-              return (
-                <span
-                  key={key}
-                  className={`
-                    inline-flex items-center px-2 py-1 rounded text-xs font-medium
-                    ${value > 0 
-                      ? 'text-[var(--color-primary)]' 
-                      : 'text-[var(--color-pink)]'
-                    }
-                  `}
-                  style={{
-                    backgroundColor: value > 0 
-                      ? 'rgba(143, 0, 231, 0.1)' 
-                      : 'rgba(224, 1, 137, 0.1)'
-                  }}
-                >
-                  {key}: {value > 0 ? '+' : ''}{value}
-                </span>
-              );
-            })}
-          </div>
         </div>
       </button>
     );
