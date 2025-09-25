@@ -138,9 +138,9 @@
 
 17. [x] Phase 17 — Compact choice options to eliminate vertical scroll in left panel (done: 2025-09-25)
 
-18. [ ] Phase 18 — Remove redundant insights widget from left panel (2025-09-25)
-    - [ ] 18.1 Remove insights section from FeedbackScreen.tsx (lines 190-209) to eliminate redundancy
-    - [ ] 18.2 Verify insights functionality remains intact in right panel ScalingMeter component
-    - [ ] 18.3 Test that FeedbackScreen still displays properly without insights section
-    - [ ] 18.4 Ensure no broken imports or unused variables after removing insights from left panel
-    - [ ] 18.5 Confirm insights are only displayed in the right panel meter section, not duplicated
+18. [x] Phase 18 — Remove redundant insights widget from left panel (done: 2025-09-25)
+    - [x] 18.1 Remove insights section from FeedbackScreen.tsx (lines 190-209) to eliminate redundancy (done: 2025-09-25)
+    - [x] 18.2 Verify insights functionality remains intact in right panel ScalingMeter component (done: 2025-09-25)
+    - [x] 18.3 Test that FeedbackScreen still displays properly without insights section (done: 2025-09-25)
+    - [x] 18.4 Ensure no broken imports or unused variables after removing insights from left panel (done: 2025-09-25)
+    - [x] 18.5 Confirm insights are only displayed in the right panel meter section, not duplicated (done: 2025-09-25)
