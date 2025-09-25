@@ -139,8 +139,11 @@
 17. [x] Phase 17 — Compact choice options to eliminate vertical scroll in left panel (done: 2025-09-25)
 
 18. [x] Phase 18 — Remove redundant insights widget from left panel (done: 2025-09-25)
-    - [x] 18.1 Remove insights section from FeedbackScreen.tsx (lines 190-209) to eliminate redundancy (done: 2025-09-25)
-    - [x] 18.2 Verify insights functionality remains intact in right panel ScalingMeter component (done: 2025-09-25)
-    - [x] 18.3 Test that FeedbackScreen still displays properly without insights section (done: 2025-09-25)
-    - [x] 18.4 Ensure no broken imports or unused variables after removing insights from left panel (done: 2025-09-25)
-    - [x] 18.5 Confirm insights are only displayed in the right panel meter section, not duplicated (done: 2025-09-25)
+
+19. [x] Phase 19 — Fix Junie console height to remain constant regardless of message count (done: 2025-09-25)
+    - [x] 19.1 Analyze console code structure to identify potential height growth issues (done: 2025-09-25)
+    - [x] 19.2 Identify root cause: flex layout without min-h-0 constraint and improper spacing container (done: 2025-09-25)
+    - [x] 19.3 Add min-h-0 to scrollable container to prevent flex items from growing beyond allocated space (done: 2025-09-25)
+    - [x] 19.4 Wrap logs in inner div with space-y-1 to properly contain spacing within scrollable area (done: 2025-09-25)
+    - [x] 19.5 Change bottom section to explicit flex-none to prevent it from growing (done: 2025-09-25)
+    - [x] 19.6 Verify console functionality compiles successfully with height constraint changes (done: 2025-09-25)

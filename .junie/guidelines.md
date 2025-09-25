@@ -20,3 +20,11 @@ Task list workflow (for docs/tasks.md)
     - Format: "[ ] N. Task description" where N is the new task number.
     - Include clear, actionable descriptions that align with project requirements.
     - If adding related tasks, group them under a parent task using indented subtasks.
+- Testing Guidelines:
+    - For running tests with "npm run dev", ensure the application is always started in background.
+    - Never run the application in foreground when executing tests to avoid blocking test execution.
+    - Use appropriate background process management based on your OS:
+        - Linux/MacOS: Append '&' to run in background
+        - Windows: Use 'start' command
+    - Clean up background processes after test completion using pkill command.
+
