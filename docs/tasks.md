@@ -141,9 +141,7 @@
 18. [x] Phase 18 — Remove redundant insights widget from left panel (done: 2025-09-25)
 
 19. [x] Phase 19 — Fix Junie console height to remain constant regardless of message count (done: 2025-09-25)
-    - [x] 19.1 Analyze console code structure to identify potential height growth issues (done: 2025-09-25)
-    - [x] 19.2 Identify root cause: flex layout without min-h-0 constraint and improper spacing container (done: 2025-09-25)
-    - [x] 19.3 Add min-h-0 to scrollable container to prevent flex items from growing beyond allocated space (done: 2025-09-25)
-    - [x] 19.4 Wrap logs in inner div with space-y-1 to properly contain spacing within scrollable area (done: 2025-09-25)
-    - [x] 19.5 Change bottom section to explicit flex-none to prevent it from growing (done: 2025-09-25)
-    - [x] 19.6 Verify console functionality compiles successfully with height constraint changes (done: 2025-09-25)
+
+20. [x] Phase 20 — Special double unluck event for step 4 option B (done: 2025-09-25)
+
+21. [x] Phase 21 — Enhanced special unluck "Perfect Storm" with C/I parameter reductions (done: 2025-09-25)

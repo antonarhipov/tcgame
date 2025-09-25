@@ -3,6 +3,16 @@
 •	Effect: Reduces the positive gain of that step by a factor.
 •	Narrative: Always contextual — something in the startup world sabotages your otherwise solid choice.
 
+## Perfect Storm (Step 4 Option B) 💥
+•	Trigger condition: Only when regular unluck occurs on Step 4 Option B (AI Support Chatbot).
+•	Double roll: If regular unluck triggers, roll again for special unluck (100% chance by default).
+•	Perfect Storm penalties: 
+  - Additional 50% reduction to scaling gains (on top of regular unluck)
+  - 50% reduction to Users (U) parameter
+  - 70% reduction to Customers (C) parameter
+  - 40% reduction to Investors (I) parameter
+•	Narrative: System collapse messages about not investing in system stability ("You thought you could get away with this!? Perfect Storm incoming!")
+
 # Formula Update with Unluck ⚖️
 
 ## Existing (simplified)
@@ -204,3 +214,48 @@ When you need to demo or test Unluck deterministically:
 - Factor is always within `factorRange`.
 - Only positive components are scaled.
 - Meter animation/overlay and SR announcement fire when `unluckApplied` is true.
+
+# Perfect Storm Implementation 🔧
+
+## Configuration (MeterConfig)
+```typescript
+specialUnluck: {
+  enabled: boolean;           // Enable/disable Perfect Storm feature
+  step: number;              // Step number (4 for step 4)
+  choice: 'A' | 'B';         // Choice that triggers Perfect Storm ('B' for AI chatbot)
+  probability: number;       // Probability after regular unluck (1.0 = 100%)
+  scalingGainsReduction: number;  // Additional reduction factor (0.5 = 50%)
+  usersReduction: number;    // Users parameter reduction (0.5 = 50%)
+  customersReduction: number; // Customers parameter reduction (0.7 = 70%)
+  investorsReduction: number; // Investors parameter reduction (0.4 = 40%)
+}
+```
+
+## Implementation Details
+1. **Trigger Condition**: Only activates when regular unluck occurs on Step 4 Option B
+2. **Double Roll**: After regular unluck applies, roll again for Perfect Storm
+3. **Perfect Storm Penalties Applied**:
+   - Scaling gains: Regular unluck factor × Special unluck factor (e.g., 0.6 × 0.5 = 0.3)
+   - Users parameter: Reduced by 50% of final value after delta application
+   - Customers parameter: Reduced by 70% of final value after delta application
+   - Investors parameter: Reduced by 40% of final value after delta application
+4. **UI Indicators**:
+   - Red styling instead of pink for Perfect Storm
+   - Explosion emoji (💥) instead of warning (⚠️)
+   - "PERFECT STORM" messaging
+   - Enhanced visual effects in scaling meter
+
+## Perfect Storm Messages
+Snarky messages stored in `getSpecialUnluckMessage()`:
+- "You thought you could get away with this!? Now you have to pay twice!"
+- "Oh, you didn't invest in stability? Time to learn the hard way — PERFECT STORM!"
+- "Surprise! Your system just collapsed under load. Should've chosen option A!"
+- "Plot twist: Your AI chatbot became sentient and quit. Users are fleeing!"
+- And more...
+
+## Testing
+Perfect Storm tests are included in `tests/unit/scaling-meter.test.ts`:
+- Triggers only on Step 4 Option B with regular unluck
+- Applies correct penalties (50% scaling gains + 50% users + 70% customers + 40% investors)
+- Respects probability configuration
+- Does not trigger on other steps or choices

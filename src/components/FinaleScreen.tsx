@@ -221,6 +221,7 @@ export function FinaleScreen({ onStartOver }: FinaleScreenProps) {
             {choicesSummary.map((choice, index) => {
               const hist = runState.history[index];
               const unluckApplied = Boolean(hist?.unluckApplied);
+              const specialUnluckApplied = Boolean(hist?.specialUnluckApplied);
               const luckFactorPct = hist?.luckFactor != null ? Math.round((hist.luckFactor as number) * 100) : null;
               const unluckRng = mulberry32(runState.seed + index);
               const unluckMsg = unluckApplied
@@ -236,10 +237,23 @@ export function FinaleScreen({ onStartOver }: FinaleScreenProps) {
                       {choice.label}
                     </p>
                     {unluckApplied && (
-                      <div className="mt-2 inline-flex items-start gap-2 rounded-md border border-[var(--color-pink)] px-2.5 py-1.5" style={{ backgroundColor: 'rgba(224, 1, 137, 0.1)' }}>
-                        <span className="text-[var(--color-pink)] text-xs font-semibold">Unluck</span>
-                        <span className="text-xs text-[var(--color-pink)]">
-                          {unluckMsg || 'Unluck event — gains reduced'}{luckFactorPct ? ` (gains cut to ${luckFactorPct}%)` : ''}
+                      <div className={`mt-2 inline-flex items-start gap-2 rounded-md border px-2.5 py-1.5 ${
+                        specialUnluckApplied 
+                          ? 'border-red-500 bg-red-50 dark:bg-red-950/20' 
+                          : 'border-[var(--color-pink)]'
+                      }`} style={!specialUnluckApplied ? { backgroundColor: 'rgba(224, 1, 137, 0.1)' } : {}}>
+                        <span className={`text-xs font-semibold ${
+                          specialUnluckApplied ? 'text-red-500' : 'text-[var(--color-pink)]'
+                        }`}>
+                          {specialUnluckApplied ? '💥 Perfect Storm' : 'Unluck'}
+                        </span>
+                        <span className={`text-xs ${
+                          specialUnluckApplied ? 'text-red-500' : 'text-[var(--color-pink)]'
+                        }`}>
+                          {specialUnluckApplied 
+                            ? 'System collapse! Gains -50%, Users -50%, Customers -70%, Investors -40%'
+                            : `${unluckMsg || 'Unluck event — gains reduced'}${luckFactorPct ? ` (gains cut to ${luckFactorPct}%)` : ''}`
+                          }
                         </span>
                       </div>
                     )}

@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRunState, useCurrentStep } from '@/contexts/RunStateContext';
 import { getMeterTier, mulberry32 } from '@/lib/scaling-meter';
-import { getUnluckMessage } from '@/lib/content-pack';
+import { getUnluckMessage, getSpecialUnluckMessage } from '@/lib/content-pack';
 
 interface FeedbackScreenProps {
   onContinue: () => void;
@@ -30,11 +30,21 @@ export function FeedbackScreen({ onContinue, onViewFinale }: FeedbackScreenProps
 
   // Unluck popup data
   const unluckApplied = Boolean(lastResult?.unluckApplied);
+  const specialUnluckApplied = Boolean(lastResult?.specialUnluckApplied);
   const luckFactorPct = lastResult?.luckFactor != null ? Math.round((lastResult.luckFactor as number) * 100) : null;
   const unluckRng = mulberry32(runState.seed + Math.max(0, runState.stepCount - 1));
-  const unluckMsg = (unluckApplied && stepData && lastChoice)
-    ? (getUnluckMessage(stepData, lastChoice.choice, unluckRng) || null)
-    : null;
+  
+  // Get appropriate unluck message
+  let unluckMsg: string | null = null;
+  if (unluckApplied) {
+    if (specialUnluckApplied) {
+      // Use special unluck message for double unluck events
+      unluckMsg = getSpecialUnluckMessage(unluckRng);
+    } else if (stepData && lastChoice) {
+      // Use regular contextual unluck message
+      unluckMsg = getUnluckMessage(stepData, lastChoice.choice, unluckRng) || null;
+    }
+  }
 
   useEffect(() => {
     // Focus continue button when component mounts
@@ -190,14 +200,35 @@ export function FeedbackScreen({ onContinue, onViewFinale }: FeedbackScreenProps
         {/* Unluck popup balloon in console area */}
         {unluckApplied && showUnluck && (
           <div role="status" aria-live="polite" className="relative">
-            <div className="border border-[var(--color-pink)] text-[var(--color-pink)] rounded-xl p-4 mb-4" style={{ backgroundColor: 'rgba(224, 1, 137, 0.1)' }}>
+            <div className={`
+              border rounded-xl p-4 mb-4
+              ${specialUnluckApplied 
+                ? 'border-red-500 text-red-500 bg-red-50 dark:bg-red-950/20' 
+                : 'border-[var(--color-pink)] text-[var(--color-pink)]'
+              }
+            `} style={!specialUnluckApplied ? { backgroundColor: 'rgba(224, 1, 137, 0.1)' } : {}}>
               <div className="flex items-start">
-                <div className="mr-3 text-xl" aria-hidden>⚠️</div>
+                <div className="mr-3 text-xl" aria-hidden>
+                  {specialUnluckApplied ? '💥' : '⚠️'}
+                </div>
                 <div className="flex-1">
-                  <div className="font-semibold mb-1">Unluck event — gains reduced</div>
+                  <div className="font-semibold mb-1">
+                    {specialUnluckApplied 
+                      ? 'PERFECT STORM — SYSTEM COLLAPSE!' 
+                      : 'Unluck event — gains reduced'
+                    }
+                  </div>
                   <div className="text-sm">
                     {unluckMsg ?? 'Something outside your control reduced your gains this step.'}
-                    {typeof luckFactorPct === 'number' && (
+                    {specialUnluckApplied && (
+                      <div className="mt-2 font-medium">
+                        💀 Scaling gains reduced by 50%<br/>
+                        👥 Users reduced by 50%<br/>
+                        💔 Customers reduced by 70%<br/>
+                        💸 Investors reduced by 40%
+                      </div>
+                    )}
+                    {!specialUnluckApplied && typeof luckFactorPct === 'number' && (
                       <span> (cut to {luckFactorPct}% this step)</span>
                     )}
                   </div>

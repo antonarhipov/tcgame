@@ -329,6 +329,7 @@ steps:
             body: `Body B${i}`,
             delta: createDelta({ U: 1 }),
           },
+          assets: [],
         });
       }
 

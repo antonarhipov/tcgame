@@ -36,6 +36,8 @@ export interface MeterResult {
   // Unluck info (if applied on this step)
   unluckApplied?: boolean; // default false when omitted
   luckFactor?: number | null; // factor in [0.4,0.7] when applied
+  // Special unluck info (if applied on this step)
+  specialUnluckApplied?: boolean; // default false when omitted
 }
 
 // Run state including seed and history
@@ -84,6 +86,18 @@ export interface MeterConfig {
     probability: number; // e.g., 0.10 means 10% chance per step
     factorRange: [number, number]; // e.g., [0.4, 0.7]
   };
+
+  // Special unluck configuration for step 4 option B - "Perfect Storm"
+  specialUnluck: {
+    enabled: boolean;
+    step: number; // Step number (4 for step 4)
+    choice: 'A' | 'B'; // Choice that triggers special unluck
+    probability: number; // Probability of special unluck after regular unluck
+    scalingGainsReduction: number; // e.g., 0.5 for 50% reduction
+    usersReduction: number; // e.g., 0.5 for 50% reduction of U parameter
+    customersReduction: number; // e.g., 0.7 for 70% reduction of C parameter
+    investorsReduction: number; // e.g., 0.4 for 40% reduction of I parameter
+  };
 }
 
 // Default configuration based on docs/scaling-meter.md
@@ -111,6 +125,16 @@ export const DEFAULT_CONFIG: MeterConfig = {
   unluck: {
     probability: 0.4,
     factorRange: [0.4, 0.7],
+  },
+  specialUnluck: {
+    enabled: true,
+    step: 4,
+    choice: 'B',
+    probability: 1.0, // 100% chance if regular unluck occurs on step 4 option B
+    scalingGainsReduction: 0.5, // 50% reduction of scaling gains
+    usersReduction: 0.5, // 50% reduction of U parameter
+    customersReduction: 0.7, // 70% reduction of C parameter - "Perfect Storm"
+    investorsReduction: 0.4, // 40% reduction of I parameter - "Perfect Storm"
   },
 };
 
@@ -243,6 +267,7 @@ export function applyRubberBand(state: State, config: MeterConfig = DEFAULT_CONF
 export function stepUpdate(
   runState: RunState,
   delta: Delta,
+  choice: 'A' | 'B',
   config: MeterConfig = DEFAULT_CONFIG
 ): { newRunState: RunState; result: MeterResult } {
   const rng = mulberry32(runState.seed + runState.stepCount);
@@ -257,8 +282,9 @@ export function stepUpdate(
   // Unluck roll (consumes RNG before meter randomness)
   let unluckApplied = false;
   let luckFactor: number | null = null;
+  let specialUnluckApplied = false;
   let appliedDelta: Delta = delta;
-  const { unluck } = config;
+  const { unluck, specialUnluck } = config;
   if (unluck && unluck.probability > 0) {
     const roll = rng();
     if (roll < unluck.probability) {
@@ -274,16 +300,49 @@ export function stepUpdate(
         C: delta.C > 0 ? Math.round(delta.C * factor) : delta.C,
         I: delta.I > 0 ? Math.round(delta.I * factor) : delta.I,
       };
+
+      // Special unluck check: if regular unluck occurred on step 4 option B
+      if (specialUnluck.enabled && 
+          runState.stepCount + 1 === specialUnluck.step && 
+          choice === specialUnluck.choice) {
+        const specialRoll = rng();
+        if (specialRoll < specialUnluck.probability) {
+          specialUnluckApplied = true;
+          
+          // Apply additional 50% reduction to scaling gains (further reduce positive deltas)
+          const scalingReduction = specialUnluck.scalingGainsReduction;
+          appliedDelta = {
+            R: appliedDelta.R > 0 ? Math.round(appliedDelta.R * scalingReduction) : appliedDelta.R,
+            U: appliedDelta.U > 0 ? Math.round(appliedDelta.U * scalingReduction) : appliedDelta.U,
+            S: appliedDelta.S > 0 ? Math.round(appliedDelta.S * scalingReduction) : appliedDelta.S,
+            C: appliedDelta.C > 0 ? Math.round(appliedDelta.C * scalingReduction) : appliedDelta.C,
+            I: appliedDelta.I > 0 ? Math.round(appliedDelta.I * scalingReduction) : appliedDelta.I,
+          };
+        }
+      }
     }
   }
 
   // Apply choice delta (possibly scaled)
-  const newState = applyChoice(currentState, appliedDelta);
+  let newState = applyChoice(currentState, appliedDelta);
+
+  // Apply special unluck penalties to U, C, I parameters if special unluck occurred - "Perfect Storm"
+  if (specialUnluckApplied) {
+    const usersReduction = specialUnluck.usersReduction;
+    const customersReduction = specialUnluck.customersReduction;
+    const investorsReduction = specialUnluck.investorsReduction;
+    newState = {
+      ...newState,
+      U: Math.round(newState.U * (1 - usersReduction)), // 50% reduction
+      C: Math.round(newState.C * (1 - customersReduction)), // 70% reduction
+      I: Math.round(newState.I * (1 - investorsReduction)), // 40% reduction
+    };
+  }
 
   // Compute effective state and meter using the same rng (after unluck rolls)
   const effective = computeEffective(newState, config);
   const baseResult = computeMeter(effective, runState.lastMeter, rng, config);
-  const result: MeterResult = { ...baseResult, unluckApplied, luckFactor };
+  const result: MeterResult = { ...baseResult, unluckApplied, luckFactor, specialUnluckApplied };
 
   // Update run state
   const newRunState: RunState = {

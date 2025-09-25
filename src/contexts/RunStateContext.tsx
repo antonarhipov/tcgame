@@ -64,7 +64,7 @@ function gameStateReducer(state: GameState, action: GameStateAction): GameState 
     
     case 'APPLY_CHOICE': {
       // Use the scaling meter engine to update the core RunState
-      const { newRunState, result } = stepUpdate(state, action.delta, DEFAULT_CONFIG);
+      const { newRunState, result } = stepUpdate(state, action.delta, action.choice, DEFAULT_CONFIG);
       
       // Return extended GameState with UI properties
       return {

@@ -85,3 +85,21 @@ export function getUnluckMessage(
   const index = Math.floor(rng() * list.length);
   return list[index] ?? null;
 }
+
+// Special unluck messages for step 4 option B (double unluck scenario)
+const SPECIAL_UNLUCK_MESSAGES = [
+  "You thought you could get away with this!? Now you have to pay twice!",
+  "Oh, you didn't invest in stability? Time to learn the hard way — DOUBLE PENALTY!",
+  "Surprise! Your system just collapsed under load. Should've chosen option A!",
+  "Plot twist: Your AI chatbot became sentient and quit. Users are fleeing!",
+  "Breaking: Your infrastructure melted faster than ice cream in July. Oops!",
+  "Karma called — it wants its revenge for skipping system stability!",
+  "Your servers just pulled a Houdini act. Poof! Gone with half your users!",
+  "Congratulations! You've unlocked the 'System Meltdown' achievement. Twice the pain!",
+];
+
+// Get a snarky special unluck message for double unluck events
+export function getSpecialUnluckMessage(rng: () => number): string {
+  const index = Math.floor(rng() * SPECIAL_UNLUCK_MESSAGES.length);
+  return SPECIAL_UNLUCK_MESSAGES[index] ?? SPECIAL_UNLUCK_MESSAGES[0];
+}

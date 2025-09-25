@@ -219,7 +219,7 @@ describe('Scaling Meter Engine', () => {
   describe('stepUpdate', () => {
     it('should complete a full step update', () => {
       const delta = createDelta({ R: 10, U: 5, S: 3, C: 2, I: 1 });
-      const { newRunState, result } = stepUpdate(runState, delta);
+      const { newRunState, result } = stepUpdate(runState, delta, 'A');
       
       // State should be updated
       expect(newRunState.state).toEqual({ R: 10, U: 5, S: 3, C: 2, I: 1 });
@@ -238,14 +238,14 @@ describe('Scaling Meter Engine', () => {
     it('should apply rubber-band from previous step', () => {
       // First step with low meter to trigger rubber-band
       const lowDelta = createDelta({ R: 1, U: 1 });
-      const { newRunState: state1 } = stepUpdate(runState, lowDelta);
+      const { newRunState: state1 } = stepUpdate(runState, lowDelta, 'A');
       
       // Check if rubber-band was triggered
       const lastResult = state1.history[state1.history.length - 1];
       if (lastResult.rubberBand) {
         // Second step should apply rubber-band bonus
         const secondDelta = createDelta({ R: 2, U: 2 });
-        const { newRunState: state2 } = stepUpdate(state1, secondDelta);
+        const { newRunState: state2 } = stepUpdate(state1, secondDelta, 'B');
         
         // State should have rubber-band bonus applied
         expect(state2.state.S > state1.state.S || state2.state.C > state1.state.C).toBe(true);
@@ -256,8 +256,8 @@ describe('Scaling Meter Engine', () => {
       const delta = createDelta({ R: 5, U: 5 });
       
       // Same initial state and delta should produce same result
-      const result1 = stepUpdate(runState, delta);
-      const result2 = stepUpdate(runState, delta);
+      const result1 = stepUpdate(runState, delta, 'A');
+      const result2 = stepUpdate(runState, delta, 'A');
       
       expect(result1.result.meter).toBe(result2.result.meter);
       expect(result1.result.randomness).toBe(result2.result.randomness);
@@ -354,7 +354,7 @@ describe('Scaling Meter Engine', () => {
       // Step 1A – Subscriptions: +R +U, slight -I
       // Δ ≈ R+10, U+4, I-2
       const delta = createDelta({ R: 10, U: 4, I: -2 });
-      const { newRunState, result } = stepUpdate(runState, delta);
+      const { newRunState, result } = stepUpdate(runState, delta, 'A');
       
       expect(newRunState.state.R).toBe(10);
       expect(newRunState.state.U).toBe(4);
@@ -366,7 +366,7 @@ describe('Scaling Meter Engine', () => {
       // Step 1B – Investor Dashboard: +I, slight -R
       // Δ ≈ I+10, R-3
       const delta = createDelta({ I: 10, R: -3 });
-      const { newRunState, result } = stepUpdate(runState, delta);
+      const { newRunState, result } = stepUpdate(runState, delta, 'B');
       
       expect(newRunState.state.I).toBe(10);
       expect(newRunState.state.R).toBe(-3);
@@ -377,7 +377,7 @@ describe('Scaling Meter Engine', () => {
       // Step 4A – Autoscaling: +S +I, no change to C
       // Δ ≈ S+10, I+3
       const delta = createDelta({ S: 10, I: 3 });
-      const { newRunState, result } = stepUpdate(runState, delta);
+      const { newRunState, result } = stepUpdate(runState, delta, 'A');
       
       expect(newRunState.state.S).toBe(10);
       expect(newRunState.state.I).toBe(3);
@@ -389,7 +389,7 @@ describe('Scaling Meter Engine', () => {
       // Step 4B – AI Support: +C +I, risk to S
       // Δ ≈ C+7, I+4, S-5
       const delta = createDelta({ C: 7, I: 4, S: -5 });
-      const { newRunState, result } = stepUpdate(runState, delta);
+      const { newRunState, result } = stepUpdate(runState, delta, 'B');
       
       expect(newRunState.state.C).toBe(7);
       expect(newRunState.state.I).toBe(4);
@@ -491,7 +491,8 @@ describe('Balance validation via seeded simulations', () => {
     for (let step = 0; step < steps.length; step++) {
       const pickB = choiceRng() < 0.5; // 50/50 A vs B (deterministic per seed)
       const delta = steps[step][pickB ? 1 : 0];
-      const { newRunState } = stepUpdate(rs, delta, DEFAULT_CONFIG);
+      const choice = pickB ? 'B' : 'A';
+      const { newRunState } = stepUpdate(rs, delta, choice, DEFAULT_CONFIG);
       rs = newRunState;
     }
 
@@ -547,7 +548,8 @@ describe('Balance reachability (greedy strategy)', () => {
       const rawA = projectRaw(rs.state, a);
       const rawB = projectRaw(rs.state, b);
       const chosen = rawB > rawA ? b : a;
-      const { newRunState } = stepUpdate(rs, chosen, DEFAULT_CONFIG);
+      const choice = rawB > rawA ? 'B' : 'A';
+      const { newRunState } = stepUpdate(rs, chosen, choice, DEFAULT_CONFIG);
       rs = newRunState;
     }
 
@@ -568,7 +570,7 @@ describe('Unluck feature', () => {
       unluck: { probability: 1, factorRange: [0.4, 0.7] },
     };
 
-    const { newRunState, result } = stepUpdate(base, delta, config);
+    const { newRunState, result } = stepUpdate(base, delta, 'A', config);
 
     expect(result.unluckApplied).toBe(true);
     expect(result.luckFactor).not.toBeNull();
@@ -597,7 +599,7 @@ describe('Unluck feature', () => {
 
     let hits = 0;
     for (let i = 0; i < trials; i++) {
-      const { newRunState, result } = stepUpdate(rs, delta, config);
+      const { newRunState, result } = stepUpdate(rs, delta, 'A', config);
       if (result.unluckApplied) hits++;
       rs = newRunState;
     }
@@ -625,11 +627,202 @@ describe('Unluck feature', () => {
       unluck: { probability: 1, factorRange: [0.5, 0.5] },
     };
 
-    const resNo = stepUpdate(base1, delta, cfgNo).result;
-    const resYes = stepUpdate(base2, delta, cfgYes).result;
+    const resNo = stepUpdate(base1, delta, 'A', cfgNo).result;
+    const resYes = stepUpdate(base2, delta, 'A', cfgYes).result;
 
     expect(resNo.unluckApplied || false).toBe(false);
     expect(resYes.unluckApplied || false).toBe(true);
     expect(resYes.meter).toBeLessThanOrEqual(resNo.meter);
+  });
+});
+
+// --- Special Unluck feature tests ---
+describe('Special Unluck feature (Step 4 Option B)', () => {
+  it('should trigger special unluck when regular unluck occurs on step 4 option B', () => {
+    // Set up run state at step 4 (stepCount = 3, so next step will be 4)
+    const base = initializeRunState(424242);
+    base.stepCount = 3; // Next step will be step 4
+    base.state = { R: 10, U: 20, S: 5, C: 8, I: 12 }; // Some existing state
+    
+    const delta = createDelta({ C: 7, I: 4, S: -5 }); // Step 4B delta
+    const config: MeterConfig = {
+      ...DEFAULT_CONFIG,
+      momentumBonus: 0,
+      randomnessRange: [0, 0],
+      unluck: { probability: 1, factorRange: [0.5, 0.5] }, // Force regular unluck
+      specialUnluck: {
+        enabled: true,
+        step: 4,
+        choice: 'B',
+        probability: 1.0, // Force special unluck
+        scalingGainsReduction: 0.5,
+        usersReduction: 0.5,
+        customersReduction: 0.7, // 70% reduction - "Perfect Storm"
+        investorsReduction: 0.4, // 40% reduction - "Perfect Storm"
+      },
+    };
+
+    const { newRunState, result } = stepUpdate(base, delta, 'B', config);
+
+    // Both regular and special unluck should be applied
+    expect(result.unluckApplied).toBe(true);
+    expect(result.specialUnluckApplied).toBe(true);
+    expect(result.luckFactor).toBe(0.5);
+
+    // Check Perfect Storm penalties: scaling gains + parameter reductions
+    // 1. Scaling gains: C+7, I+4 -> regular unluck (0.5) -> special unluck (0.5) -> C+2, I+1
+    // 2. Parameter reductions: U*0.5, C*0.3, I*0.6 applied to final values
+    // 3. S unchanged (negative delta not affected by unluck)
+    expect(newRunState.state.S).toBe(base.state.S - 5); // 5 - 5 = 0 (negative delta unchanged)
+    
+    // Calculate expected final values after Perfect Storm
+    const stateAfterDelta = {
+      U: base.state.U, // 20 (no delta for U in this test)
+      C: base.state.C + Math.round(7 * 0.5 * 0.5), // 8 + 2 = 10
+      I: base.state.I + Math.round(4 * 0.5 * 0.5), // 12 + 1 = 13
+    };
+    const expectedU = Math.round(stateAfterDelta.U * (1 - 0.5)); // 20 * 0.5 = 10
+    const expectedC = Math.round(stateAfterDelta.C * (1 - 0.7)); // 10 * 0.3 = 3
+    const expectedI = Math.round(stateAfterDelta.I * (1 - 0.4)); // 13 * 0.6 = 8
+    
+    expect(newRunState.state.U).toBe(expectedU);
+    expect(newRunState.state.C).toBe(expectedC);
+    expect(newRunState.state.I).toBe(expectedI);
+  });
+
+  it('should not trigger special unluck on step 4 option A', () => {
+    const base = initializeRunState(424242);
+    base.stepCount = 3; // Next step will be step 4
+    base.state = { R: 10, U: 20, S: 5, C: 8, I: 12 };
+    
+    const delta = createDelta({ S: 10, I: 3 }); // Step 4A delta
+    const config: MeterConfig = {
+      ...DEFAULT_CONFIG,
+      momentumBonus: 0,
+      randomnessRange: [0, 0],
+      unluck: { probability: 1, factorRange: [0.5, 0.5] }, // Force regular unluck
+      specialUnluck: {
+        enabled: true,
+        step: 4,
+        choice: 'B', // Only triggers on B
+        probability: 1.0,
+        scalingGainsReduction: 0.5,
+        usersReduction: 0.5,
+        customersReduction: 0.7,
+        investorsReduction: 0.4,
+      },
+    };
+
+    const { newRunState, result } = stepUpdate(base, delta, 'A', config);
+
+    // Only regular unluck should be applied
+    expect(result.unluckApplied).toBe(true);
+    expect(result.specialUnluckApplied).toBe(false);
+    
+    // Users parameter should not be reduced
+    expect(newRunState.state.U).toBe(base.state.U); // 20, unchanged
+  });
+
+  it('should not trigger special unluck on other steps with option B', () => {
+    const base = initializeRunState(424242);
+    base.stepCount = 2; // Next step will be step 3
+    base.state = { R: 10, U: 20, S: 5, C: 8, I: 12 };
+    
+    const delta = createDelta({ C: 6, I: 4, U: -2 }); // Step 3B delta
+    const config: MeterConfig = {
+      ...DEFAULT_CONFIG,
+      momentumBonus: 0,
+      randomnessRange: [0, 0],
+      unluck: { probability: 1, factorRange: [0.5, 0.5] }, // Force regular unluck
+      specialUnluck: {
+        enabled: true,
+        step: 4, // Only triggers on step 4
+        choice: 'B',
+        probability: 1.0,
+        scalingGainsReduction: 0.5,
+        usersReduction: 0.5,
+        customersReduction: 0.7,
+        investorsReduction: 0.4,
+      },
+    };
+
+    const { newRunState, result } = stepUpdate(base, delta, 'B', config);
+
+    // Only regular unluck should be applied
+    expect(result.unluckApplied).toBe(true);
+    expect(result.specialUnluckApplied).toBe(false);
+    
+    // Users parameter should not be reduced
+    expect(newRunState.state.U).toBe(base.state.U - 2); // 20 - 2 = 18, only delta applied
+  });
+
+  it('should not trigger special unluck when regular unluck does not occur', () => {
+    const base = initializeRunState(424242);
+    base.stepCount = 3; // Next step will be step 4
+    base.state = { R: 10, U: 20, S: 5, C: 8, I: 12 };
+    
+    const delta = createDelta({ C: 7, I: 4, S: -5 }); // Step 4B delta
+    const config: MeterConfig = {
+      ...DEFAULT_CONFIG,
+      momentumBonus: 0,
+      randomnessRange: [0, 0],
+      unluck: { probability: 0, factorRange: [0.5, 0.5] }, // No regular unluck
+      specialUnluck: {
+        enabled: true,
+        step: 4,
+        choice: 'B',
+        probability: 1.0,
+        scalingGainsReduction: 0.5,
+        usersReduction: 0.5,
+        customersReduction: 0.7,
+        investorsReduction: 0.4,
+      },
+    };
+
+    const { newRunState, result } = stepUpdate(base, delta, 'B', config);
+
+    // Neither regular nor special unluck should be applied
+    expect(result.unluckApplied).toBe(false);
+    expect(result.specialUnluckApplied).toBe(false);
+    
+    // Full deltas should be applied
+    expect(newRunState.state.C).toBe(base.state.C + 7); // 8 + 7 = 15
+    expect(newRunState.state.I).toBe(base.state.I + 4); // 12 + 4 = 16
+    expect(newRunState.state.U).toBe(base.state.U); // 20, unchanged
+  });
+
+  it('should respect special unluck probability when less than 1.0', () => {
+    const base = initializeRunState(999);
+    base.stepCount = 3; // Next step will be step 4
+    base.state = { R: 10, U: 20, S: 5, C: 8, I: 12 };
+    
+    const delta = createDelta({ C: 7, I: 4, S: -5 }); // Step 4B delta
+    const config: MeterConfig = {
+      ...DEFAULT_CONFIG,
+      momentumBonus: 0,
+      randomnessRange: [0, 0],
+      unluck: { probability: 1, factorRange: [0.5, 0.5] }, // Force regular unluck
+      specialUnluck: {
+        enabled: true,
+        step: 4,
+        choice: 'B',
+        probability: 0.0, // Never trigger special unluck
+        scalingGainsReduction: 0.5,
+        usersReduction: 0.5,
+        customersReduction: 0.7,
+        investorsReduction: 0.4,
+      },
+    };
+
+    const { newRunState, result } = stepUpdate(base, delta, 'B', config);
+
+    // Only regular unluck should be applied
+    expect(result.unluckApplied).toBe(true);
+    expect(result.specialUnluckApplied).toBe(false);
+    
+    // Only regular unluck scaling should be applied
+    expect(newRunState.state.C).toBe(base.state.C + Math.round(7 * 0.5)); // 8 + 4 = 12
+    expect(newRunState.state.I).toBe(base.state.I + Math.round(4 * 0.5)); // 12 + 2 = 14
+    expect(newRunState.state.U).toBe(base.state.U); // 20, unchanged (no special unluck)
   });
 });

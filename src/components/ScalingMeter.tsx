@@ -38,6 +38,7 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
 
   // Unluck state from last result
   const unluckApplied = Boolean(lastResult && lastResult.unluckApplied);
+  const specialUnluckApplied = Boolean(lastResult && lastResult.specialUnluckApplied);
   const luckFactor = typeof lastResult?.luckFactor === 'number' ? lastResult!.luckFactor as number : null;
   const [showUnluckOverlay, setShowUnluckOverlay] = React.useState(true);
   const unluckPercent = luckFactor !== null ? Math.round(luckFactor * 100) : null;
@@ -114,13 +115,17 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
             <button
               type="button"
               aria-pressed={showUnluckOverlay}
-              aria-label="Toggle Unluck info"
-              title="Toggle Unluck info"
-              className="text-xs px-2 py-1 rounded border border-[var(--color-pink)] text-[var(--color-pink)] hover:bg-[rgba(224,1,137,0.1)] transition-colors duration-200"
+              aria-label={specialUnluckApplied ? "Toggle Special Unluck info" : "Toggle Unluck info"}
+              title={specialUnluckApplied ? "Toggle Special Unluck info" : "Toggle Unluck info"}
+              className={`text-xs px-2 py-1 rounded border transition-colors duration-200 ${
+                specialUnluckApplied
+                  ? 'border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20'
+                  : 'border-[var(--color-pink)] text-[var(--color-pink)] hover:bg-[rgba(224,1,137,0.1)]'
+              }`}
               onClick={() => setShowUnluckOverlay(v => !v)}
               data-testid="unluck-toggle"
             >
-              Unluck
+              {specialUnluckApplied ? '💥 Special Unluck' : 'Unluck'}
             </button>
           )}
         </div>
@@ -147,10 +152,16 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
             >
               {/* Animated shimmer effect for visual appeal */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
-              {/* Pink spark animation overlay when Unluck applied */}
+              {/* Spark animation overlay when Unluck applied */}
               {unluckApplied && (
                 <div aria-hidden="true" data-testid="unluck-spark" className="absolute inset-0 pointer-events-none">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(224,1,137,0.35),transparent_60%)] animate-pulse"></div>
+                  {specialUnluckApplied ? (
+                    // More dramatic red animation for special unluck
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(239,68,68,0.5),transparent_60%)] animate-pulse"></div>
+                  ) : (
+                    // Regular pink animation for normal unluck
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(224,1,137,0.35),transparent_60%)] animate-pulse"></div>
+                  )}
                 </div>
               )}
             </div>
@@ -166,12 +177,15 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
             <div className="h-2 w-40 bg-[var(--surface-2)] rounded overflow-hidden" aria-hidden="true" data-testid="reduced-delta-bar">
               <div className="h-2" style={{ 
                 width: `${unluckPercent ?? 60}%`,
-                backgroundColor: 'var(--color-pink)',
-                opacity: 0.5
+                backgroundColor: specialUnluckApplied ? 'rgb(239, 68, 68)' : 'var(--color-pink)',
+                opacity: specialUnluckApplied ? 0.7 : 0.5
               }}></div>
             </div>
-            <span className="text-xs text-[var(--color-pink)]">
-              Gains cut{unluckPercent ? ` to ${unluckPercent}%` : ''} this step
+            <span className={`text-xs ${specialUnluckApplied ? 'text-red-500' : 'text-[var(--color-pink)]'}`}>
+              {specialUnluckApplied 
+                ? '💥 PERFECT STORM: Gains -50%, Users -50%, Customers -70%, Investors -40%'
+                : `Gains cut${unluckPercent ? ` to ${unluckPercent}%` : ''} this step`
+              }
             </span>
           </div>
         )}
