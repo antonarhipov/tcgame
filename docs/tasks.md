@@ -103,6 +103,7 @@
     - [ ] 11.7 Verify WCAG AA contrast with axe (Playwright) and update docs/ui-design.md if adjustments are needed
     - [x] 11.8 KotlinConf UI theme implementation (see docs/ui-design.md) (done: 2025-09-25)
     - [x] 11.9 Fix feedback cards styling to match KotlinConf dark theme (done: 2025-09-25)
+    - [x] 11.10 Fix final summary screen widgets styling to match KotlinConf dark theme (done: 2025-09-25)
 
 12. [SKIPPED] Phase 11 — A/B packs and operator tooling
     - [SKIPPED] 12.1 Pack version selector UI (dev/operator only); surface version id in UI and analytics events.
