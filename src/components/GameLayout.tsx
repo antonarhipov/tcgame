@@ -14,13 +14,13 @@ interface GameLayoutProps {
 
 /**
  * Main game layout component
- * Layout: left: Scenario/A-B, right: Console, bottom: Meter/Insights
+ * Layout: left: Scenario/A-B, right: Console (top 1/3) + Meter (bottom 2/3)
  */
 export function GameLayout({ children, console, meter, className = '' }: GameLayoutProps) {
   return (
-    <div className={`min-h-screen bg-[var(--bg)] ${className}`}>
+    <div className={`h-screen bg-[var(--bg)] ${className}`}>
       {/* Main content area */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
+      <div className="grid grid-cols-1 lg:grid-cols-2 h-screen">
         {/* Left side: Scenario/A-B choices */}
         <div className="flex flex-col p-6 lg:p-8">
           <div className="flex-1 max-w-2xl mx-auto w-full">
@@ -28,9 +28,10 @@ export function GameLayout({ children, console, meter, className = '' }: GameLay
           </div>
         </div>
 
-        {/* Right side: Console */}
-        <div className="bg-[var(--surface-1)] border-l border-[var(--border)]">
-          <div className="h-full flex flex-col">
+        {/* Right side: Console (top 1/3) + Meter (bottom 2/3) */}
+        <div className="bg-[var(--surface-1)] border-l border-[var(--border)] flex flex-col">
+          {/* Console section - 1/3 height */}
+          <div className="flex-none h-1/3 flex flex-col">
             <div className="p-4 border-b border-[var(--divider)]">
               <h2 className="text-lg font-semibold text-[var(--text-hard)]">
                 Junie Console
@@ -43,13 +44,13 @@ export function GameLayout({ children, console, meter, className = '' }: GameLay
               {console || <ConsolePlaceholder />}
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Bottom: Meter/Insights */}
-      <div className="border-t border-[var(--border)] bg-[var(--surface-1)]">
-        <div className="p-4">
-          {meter || <MeterPlaceholder />}
+          {/* Meter section - 2/3 height */}
+          <div className="flex-1 border-t border-[var(--border)] overflow-y-auto">
+            <div className="p-4 h-full">
+              {meter || <MeterPlaceholder />}
+            </div>
+          </div>
         </div>
       </div>
     </div>

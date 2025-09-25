@@ -77,7 +77,7 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
   ];
 
   return (
-    <div className={`max-w-4xl mx-auto ${className}`} role="region" aria-label="Scaling Meter">
+    <div className={`w-full ${className}`} role="region" aria-label="Scaling Meter">
       {/* Header with tier information */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">

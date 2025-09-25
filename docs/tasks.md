@@ -133,3 +133,11 @@
     - [SKIPPED] 15.1 Core flow completion rate >95% over test sessions.
     - [SKIPPED] 15.2 Determinism with fixed seed: reproduce meter evolution across two runs.
     - [SKIPPED] 15.3 Crash-free sessions >99% locally; graceful fallbacks verified.
+
+16. [x] Phase 16 — Layout optimization to eliminate vertical scroll (done: 2025-09-25)
+    - [x] 16.1 Modify GameLayout.tsx to restructure right panel: console (top 1/3) + meter (bottom 2/3) (done: 2025-09-25)
+    - [x] 16.2 Update right panel CSS to use vertical flex layout instead of full-height console (done: 2025-09-25)
+    - [x] 16.3 Adjust ScalingMeter component sizing to fit in right panel space (remove max-w-4xl constraint) (done: 2025-09-25)
+    - [x] 16.4 Remove bottom meter section from GameLayout to eliminate vertical stacking (done: 2025-09-25)
+    - [x] 16.5 Test layout on different screen sizes to ensure no vertical scroll and proper responsiveness (done: 2025-09-25)
+    - [x] 16.6 Verify console and meter functionality remains intact after layout changes (done: 2025-09-25)
