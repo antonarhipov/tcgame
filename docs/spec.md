@@ -4,6 +4,7 @@ Interactive expo/demo game where players act as a founder building AI Cofounder 
 
 Game levels description is in `docs/game-levels.md` file.
 Scaling meter description is in `docs/scaling-meter.md` file.
+Unluck system description is in `docs/unluck.md` file.
 
 ## Core Loop (per Step aka "Game Level")
 1.	Present Scenario (from content pack).

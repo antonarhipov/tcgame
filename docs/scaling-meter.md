@@ -139,3 +139,5 @@ function applyChoice(choice) {
 - A solid, high-performing route to start with is: 1A → 2A → 3A → 4A → 5B.
 - With current tuning, expect ~60–75 on this route; to reach 80+, keep a rising streak and pick options maximizing projected raw after diminishing returns (a greedy heuristic may deviate at times).
 - See also: docs/how-to-reach-80+.md for step-by-step reasoning, momentum tips, and troubleshooting.
+
+See Unluck parameters and UI mapping in docs/unluck.md.

@@ -149,3 +149,58 @@ Choice B: International payments
 [Junie] 💳 Global payments live. EUR, JPY, BRL flowing in.
 [Junie] 🚫 Processor froze funds for “suspicious founder activity.”
 [Junie] 🥲 Gains cut in half. Congrats — you’re a money laundering suspect now.
+
+---
+
+## Config and API (final names)
+
+This feature is configured via the Scaling Meter engine (see `src/lib/scaling-meter.ts`). Final, stable names:
+
+- DEFAULT_CONFIG.unluck
+  - probability: number  // e.g., 0.10 means a 10% chance per step
+  - factorRange: [number, number]  // e.g., [0.4, 0.7]
+- MeterConfig
+  - unluck: { probability: number; factorRange: [number, number] }
+- MeterResult (per step)
+  - unluckApplied?: boolean  // true when Unluck triggers this step
+  - luckFactor?: number | null  // the actual multiplier used (within factorRange)
+
+Behavioral notes:
+- Only positive delta components are scaled by the factor; negatives (tradeoffs) remain unchanged.
+- RNG call order is stable: Unluck roll first → meter randomness. This preserves determinism by seed.
+- UI uses `getUnluckMessage(step, choice, rng)` to pick a contextual message deterministically.
+
+See also:
+- docs/scaling-meter.md (parameters, tuning, SR notes)
+- docs/spec.md (high-level system overview)
+
+## Troubleshooting & Forcing Unluck (dev/operator)
+
+When you need to demo or test Unluck deterministically:
+
+1) Force via operator/dev config (recommended for demos)
+- Set `DEFAULT_CONFIG.unluck.probability = 1.0`  // triggers every step
+- Optionally pin a deterministic factor: `DEFAULT_CONFIG.unluck.factorRange = [0.5, 0.5]`
+  - SR tip: announce with exact factor, e.g., “Unluck: gains cut to 50% this step.”
+
+2) Narrow the window instead of pinning
+- Keep randomness but predictable presentation: `factorRange = [0.6, 0.65]` ⇒ small variance, same feel.
+
+3) Seed-based reproducibility
+- With a fixed seed, the Unluck roll order and message selection are stable.
+- To verify: run two identical sessions with the same seed; Unluck steps and factors should match.
+
+4) Narrative mapping sanity check
+- Ensure each step/choice has at least 2 messages that match the specific context (see lists above).
+- Message selection is deterministic with seed → no jarring repeats on quick replays.
+
+5) Why your popup didn’t appear
+- Probability too low for a short demo (e.g., 10% across 5 steps often yields 0–1 hits). For demos, use 100%.
+- Factor too high (close to 0.7), causing small visual difference on a weak delta. Try a mid factor (0.5–0.6).
+- Popup dismissed/timeout overlapped with navigation; verify component test covers visibility for ≥4s.
+
+6) QA checklist
+- ~10% hit rate across many trials at probability=0.10.
+- Factor is always within `factorRange`.
+- Only positive components are scaled.
+- Meter animation/overlay and SR announcement fire when `unluckApplied` is true.
