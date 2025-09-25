@@ -83,10 +83,10 @@ export function FeedbackScreen({ onContinue, onViewFinale }: FeedbackScreenProps
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+          <h2 className="text-2xl font-bold text-[var(--text-hard)] mb-4">
             No choice found
           </h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-[var(--text-average)]">
             Unable to load feedback for this step
           </p>
         </div>
@@ -101,35 +101,35 @@ export function FeedbackScreen({ onContinue, onViewFinale }: FeedbackScreenProps
       <div className="space-y-8">
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="text-sm font-medium text-green-600 dark:text-green-400">
+          <div className="text-sm font-medium text-[var(--color-primary)]">
             Step {currentStep} Complete
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-3xl font-bold text-[var(--text-hard)]">
             Choice Implemented!
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
+          <p className="text-lg text-[var(--text-average)]">
             Junie has implemented your decision
           </p>
         </div>
 
         {/* Choice recap */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <div className="bg-[var(--surface-1)] rounded-md p-6 border border-[var(--border)]">
+          <h2 className="text-xl font-semibold text-[var(--text-hard)] mb-4">
             Your Choice: Option {lastChoice.choice}
           </h2>
           <div className="space-y-3">
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+            <h3 className="font-semibold text-[var(--text-hard)]">
               {choiceData.label}
             </h3>
-            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+            <p className="text-[var(--text-average)] leading-relaxed">
               {choiceData.body}
             </p>
           </div>
         </div>
 
         {/* Impact summary */}
-        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-800">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <div className="bg-[var(--surface-2)] rounded-md p-6 border border-[var(--border)]">
+          <h2 className="text-xl font-semibold text-[var(--text-hard)] mb-4">
             Impact on Your Startup
           </h2>
           
@@ -146,14 +146,14 @@ export function FeedbackScreen({ onContinue, onViewFinale }: FeedbackScreenProps
               
               return (
                 <div key={key} className="text-center">
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                  <div className="text-sm text-[var(--text-average)] mb-1">
                     {labels[key as keyof typeof labels]}
                   </div>
                   <div className={`
                     text-2xl font-bold
-                    ${value > 0 ? 'text-green-600 dark:text-green-400' : 
-                      value < 0 ? 'text-red-600 dark:text-red-400' : 
-                      'text-gray-500 dark:text-gray-400'}
+                    ${value > 0 ? 'text-[var(--color-primary)]' : 
+                      value < 0 ? 'text-[var(--color-pink)]' : 
+                      'text-[var(--text-pale)]'}
                   `}>
                     {value > 0 ? '+' : ''}{value}
                   </div>
@@ -163,22 +163,25 @@ export function FeedbackScreen({ onContinue, onViewFinale }: FeedbackScreenProps
           </div>
 
           {/* Current meter status */}
-          <div className="border-t border-blue-200 dark:border-blue-800 pt-4">
+          <div className="border-t border-[var(--divider)] pt-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <span className="text-sm font-medium text-[var(--text-average)]">
                 Current Scaling Meter
               </span>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <span className="text-sm font-medium text-[var(--text-average)]">
                 {Math.round(meterValue)}/100
               </span>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-2">
+            <div className="w-full bg-[var(--surface-1)] rounded-full h-3 mb-2">
               <div 
-                className="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-1000"
-                style={{ width: `${Math.max(0, Math.min(100, meterValue))}%` }}
+                className="h-3 rounded-full transition-all duration-1000"
+                style={{ 
+                  width: `${Math.max(0, Math.min(100, meterValue))}%`,
+                  background: 'var(--gradient-a)'
+                }}
               ></div>
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="text-sm text-[var(--text-average)]">
               <strong>Tier:</strong> {meterTier.tier} ({meterTier.range})
             </div>
           </div>
@@ -186,19 +189,19 @@ export function FeedbackScreen({ onContinue, onViewFinale }: FeedbackScreenProps
 
         {/* Insights */}
         {insights && (
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-6 border border-yellow-200 dark:border-yellow-800">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          <div className="bg-[var(--surface-2)] rounded-md p-6 border border-[var(--border)]">
+            <h2 className="text-xl font-semibold text-[var(--text-hard)] mb-4">
               💡 Insights
             </h2>
-            <div className="space-y-2 text-gray-700 dark:text-gray-300">
+            <div className="space-y-2 text-[var(--text-average)]">
               {insights.drivers.length > 0 && (
                 <p>
-                  <strong>Top Drivers:</strong> {insights.drivers.join(', ')}
+                  <strong className="text-[var(--text-hard)]">Top Drivers:</strong> {insights.drivers.join(', ')}
                 </p>
               )}
               {insights.bottleneck && (
                 <p>
-                  <strong>Bottleneck:</strong> {insights.bottleneck}
+                  <strong className="text-[var(--text-hard)]">Bottleneck:</strong> {insights.bottleneck}
                 </p>
               )}
             </div>
@@ -208,7 +211,7 @@ export function FeedbackScreen({ onContinue, onViewFinale }: FeedbackScreenProps
         {/* Unluck popup balloon in console area */}
         {unluckApplied && showUnluck && (
           <div role="status" aria-live="polite" className="relative">
-            <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-100 rounded-xl p-4 shadow-md mb-4">
+            <div className="border border-[var(--color-pink)] text-[var(--color-pink)] rounded-xl p-4 mb-4" style={{ backgroundColor: 'rgba(224, 1, 137, 0.1)' }}>
               <div className="flex items-start">
                 <div className="mr-3 text-xl" aria-hidden>⚠️</div>
                 <div className="flex-1">
@@ -229,7 +232,10 @@ export function FeedbackScreen({ onContinue, onViewFinale }: FeedbackScreenProps
                       setShowUnluck(false);
                     }
                   }}
-                  className="ml-3 text-sm px-2 py-1 rounded border border-red-300 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="ml-3 text-sm px-2 py-1 rounded border border-[var(--color-pink)] hover:bg-[rgba(224,1,137,0.2)] focus:outline-none"
+                  style={{ boxShadow: 'none' }}
+                  onFocus={(e) => e.target.style.boxShadow = 'var(--shadow-focus)'}
+                  onBlur={(e) => e.target.style.boxShadow = 'none'}
                   aria-label="Dismiss Unluck message"
                 >
                   Close
@@ -240,16 +246,16 @@ export function FeedbackScreen({ onContinue, onViewFinale }: FeedbackScreenProps
         )}
 
         {/* Junie's commentary */}
-        <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+        <div className="bg-[var(--surface-1)] rounded-md p-6 border border-[var(--border)]">
           <div className="flex items-start space-x-3">
-            <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+            <div className="w-10 h-10 bg-[var(--color-primary)] rounded-full flex items-center justify-center text-white font-bold">
               J
             </div>
             <div className="flex-1">
-              <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+              <div className="text-sm font-medium text-[var(--text-hard)] mb-2">
                 Junie (AI Cofounder)
               </div>
-              <p className="text-gray-700 dark:text-gray-300 italic">
+              <p className="text-[var(--text-average)] italic">
                 {getJunieCommentary(lastChoice.choice, choiceData.label, meterTier.tier)}
               </p>
             </div>
@@ -261,14 +267,20 @@ export function FeedbackScreen({ onContinue, onViewFinale }: FeedbackScreenProps
           <button
             ref={continueRef}
             onClick={handleContinue}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="text-white font-semibold py-3 px-8 rounded-[20px] transition-all duration-200 focus:outline-none hover:brightness-110"
+            style={{ 
+              background: 'var(--gradient-a)',
+              boxShadow: 'none'
+            }}
+            onFocus={(e) => e.target.style.boxShadow = 'var(--shadow-focus)'}
+            onBlur={(e) => e.target.style.boxShadow = 'none'}
           >
             {isLastStep ? 'View Final Results' : `Continue to Step ${currentStep + 1}`}
           </button>
         </div>
 
         {/* Keyboard hint */}
-        <div className="text-center text-xs text-gray-400 dark:text-gray-500">
+        <div className="text-center text-xs text-[var(--text-pale)]">
           <p>💡 Press Enter or Space to continue</p>
         </div>
       </div>

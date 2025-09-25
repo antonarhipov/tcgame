@@ -42,36 +42,36 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
   const [showUnluckOverlay, setShowUnluckOverlay] = React.useState(true);
   const unluckPercent = luckFactor !== null ? Math.round(luckFactor * 100) : null;
   
-  // Individual dimension data
+  // Individual dimension data with KotlinConf colors
   const dimensions = [
     { 
       label: 'Revenue (R)', 
       value: runState.effective.R, 
-      color: 'from-green-500 to-green-600',
+      color: 'var(--color-orange)',
       description: 'Revenue Momentum'
     },
     { 
       label: 'Users (U)', 
       value: runState.effective.U, 
-      color: 'from-blue-500 to-blue-600',
+      color: 'var(--color-primary)',
       description: 'User Growth / Activation'
     },
     { 
       label: 'System (S)', 
       value: runState.effective.S, 
-      color: 'from-purple-500 to-purple-600',
+      color: 'var(--color-magenta)',
       description: 'System Reliability / Scalability'
     },
     { 
       label: 'Customer (C)', 
       value: runState.effective.C, 
-      color: 'from-pink-500 to-pink-600',
+      color: 'var(--color-pink)',
       description: 'Customer Love (NPS / retention)'
     },
     { 
       label: 'Investor (I)', 
       value: runState.effective.I, 
-      color: 'from-yellow-500 to-yellow-600',
+      color: 'var(--color-orange)',
       description: 'Investor Confidence / Story'
     }
   ];
@@ -81,17 +81,17 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
       {/* Header with tier information */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h3 className="text-lg font-semibold text-[var(--text-hard)]">
             Scaling Meter
           </h3>
           <div className="flex items-center space-x-2">
             <span className="text-2xl" role="img" aria-label={tierInfo.tier}>
               {tierInfo.emoji}
             </span>
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-sm font-medium text-[var(--text-average)]">
               {tierInfo.tier}
             </span>
-            <span className="text-xs text-gray-500 dark:text-gray-400">
+            <span className="text-xs text-[var(--text-pale)]">
               ({tierInfo.range})
             </span>
           </div>
@@ -102,8 +102,8 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
           {delta !== 0 && (
             <div className={`flex items-center space-x-1 text-sm font-medium ${
               delta > 0 
-                ? 'text-green-600 dark:text-green-400' 
-                : 'text-red-600 dark:text-red-400'
+                ? 'text-[var(--color-primary)]' 
+                : 'text-[var(--color-pink)]'
             }`}>
               <span>{delta > 0 ? '↗' : '↘'}</span>
               <span>{delta > 0 ? '+' : ''}{delta}</span>
@@ -116,7 +116,7 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
               aria-pressed={showUnluckOverlay}
               aria-label="Toggle Unluck info"
               title="Toggle Unluck info"
-              className="text-xs px-2 py-1 rounded border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/30"
+              className="text-xs px-2 py-1 rounded border border-[var(--color-pink)] text-[var(--color-pink)] hover:bg-[rgba(224,1,137,0.1)] transition-colors duration-200"
               onClick={() => setShowUnluckOverlay(v => !v)}
               data-testid="unluck-toggle"
             >
@@ -129,13 +129,16 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
       {/* Main meter bar */}
       <div className="space-y-4">
         <div className="flex items-center space-x-4">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300 w-20">
+          <span className="text-sm font-medium text-[var(--text-average)] w-20">
             Overall
           </span>
-          <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-6 relative overflow-hidden">
+          <div className="flex-1 bg-[var(--surface-2)] rounded-full h-6 relative overflow-hidden">
             <div 
-              className="bg-gradient-to-r from-blue-500 to-purple-600 h-6 rounded-full transition-all duration-700 ease-out relative"
-              style={{ width: `${Math.max(2, currentMeter)}%` }}
+              className="h-6 rounded-full transition-all duration-700 ease-out relative"
+              style={{ 
+                width: `${Math.max(2, currentMeter)}%`,
+                background: 'var(--gradient-a)'
+              }}
               role="progressbar"
               aria-valuenow={currentMeter}
               aria-valuemin={0}
@@ -144,15 +147,15 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
             >
               {/* Animated shimmer effect for visual appeal */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
-              {/* Red spark animation overlay when Unluck applied */}
+              {/* Pink spark animation overlay when Unluck applied */}
               {unluckApplied && (
                 <div aria-hidden="true" data-testid="unluck-spark" className="absolute inset-0 pointer-events-none">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(239,68,68,0.35),transparent_60%)] animate-pulse"></div>
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(224,1,137,0.35),transparent_60%)] animate-pulse"></div>
                 </div>
               )}
             </div>
           </div>
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300 w-16 text-right">
+          <span className="text-sm font-medium text-[var(--text-average)] w-16 text-right">
             {currentMeter}/100
           </span>
         </div>
@@ -160,10 +163,14 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
         {/* Reduced delta visualization when Unluck applied */}
         {unluckApplied && delta > 0 && (
           <div className="flex items-center gap-2 pl-20">
-            <div className="h-2 w-40 bg-gray-300 dark:bg-gray-600 rounded overflow-hidden" aria-hidden="true" data-testid="reduced-delta-bar">
-              <div className="h-2 bg-red-500/50" style={{ width: `${unluckPercent ?? 60}%` }}></div>
+            <div className="h-2 w-40 bg-[var(--surface-2)] rounded overflow-hidden" aria-hidden="true" data-testid="reduced-delta-bar">
+              <div className="h-2" style={{ 
+                width: `${unluckPercent ?? 60}%`,
+                backgroundColor: 'var(--color-pink)',
+                opacity: 0.5
+              }}></div>
             </div>
-            <span className="text-xs text-red-700 dark:text-red-300">
+            <span className="text-xs text-[var(--color-pink)]">
               Gains cut{unluckPercent ? ` to ${unluckPercent}%` : ''} this step
             </span>
           </div>
@@ -173,15 +180,18 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
         {dimensions.map((dim, index) => (
           <div key={index} className="flex items-center space-x-4 text-sm">
             <span 
-              className="text-gray-600 dark:text-gray-400 w-20"
+              className="text-[var(--text-average)] w-20"
               title={dim.description}
             >
               {dim.label}
             </span>
-            <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+            <div className="flex-1 bg-[var(--surface-2)] rounded-full h-3">
               <div 
-                className={`bg-gradient-to-r ${dim.color} h-3 rounded-full transition-all duration-500`}
-                style={{ width: `${Math.max(1, Math.min(100, dim.value * 2))}%` }}
+                className="h-3 rounded-full transition-all duration-500"
+                style={{ 
+                  width: `${Math.max(1, Math.min(100, dim.value * 2))}%`,
+                  backgroundColor: dim.color
+                }}
                 role="progressbar"
                 aria-valuenow={dim.value}
                 aria-valuemin={0}
@@ -189,7 +199,7 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
                 aria-label={`${dim.description}: ${dim.value.toFixed(1)}`}
               ></div>
             </div>
-            <span className="text-gray-600 dark:text-gray-400 w-12 text-right">
+            <span className="text-[var(--text-average)] w-12 text-right">
               {dim.value.toFixed(1)}
             </span>
           </div>
@@ -198,7 +208,8 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
         {/* Unluck overlay/tooltip (toggleable, non-blocking) */}
         {unluckApplied && showUnluckOverlay && (
           <div
-            className="mt-2 inline-flex items-center gap-2 px-2 py-1 rounded border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300"
+            className="mt-2 inline-flex items-center gap-2 px-2 py-1 rounded border border-[var(--color-pink)] text-[var(--color-pink)]"
+            style={{ backgroundColor: 'rgba(224, 1, 137, 0.1)' }}
             role="note"
             aria-live="polite"
             id="unluck-overlay"
@@ -213,32 +224,32 @@ export function ScalingMeter({ className = '' }: ScalingMeterProps) {
       </div>
 
       {/* Insights section */}
-      <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-        <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">
+      <div className="mt-6 p-4 bg-[var(--surface-2)] rounded-md border border-[var(--border)]">
+        <h4 className="font-medium text-[var(--text-hard)] mb-3">
           Insights
         </h4>
-        <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
+        <div className="text-sm text-[var(--text-average)] space-y-2">
           {insights.drivers.length > 0 && (
             <div>
-              <span className="font-medium text-gray-700 dark:text-gray-300">Top Drivers:</span>
+              <span className="font-medium text-[var(--text-hard)]">Top Drivers:</span>
               <span className="ml-2">{insights.drivers.join(', ')}</span>
             </div>
           )}
           
           {insights.bottleneck && (
             <div>
-              <span className="font-medium text-gray-700 dark:text-gray-300">Bottleneck:</span>
+              <span className="font-medium text-[var(--text-hard)]">Bottleneck:</span>
               <span className="ml-2">{insights.bottleneck} needs attention</span>
             </div>
           )}
           
           <div>
-            <span className="font-medium text-gray-700 dark:text-gray-300">Current Tier:</span>
+            <span className="font-medium text-[var(--text-hard)]">Current Tier:</span>
             <span className="ml-2">{tierInfo.tier} ({tierInfo.range} range)</span>
           </div>
           
           {runState.history.length === 0 && (
-            <div className="text-gray-500 dark:text-gray-400 italic">
+            <div className="text-[var(--text-pale)] italic">
               Make your first choice to see scaling insights!
             </div>
           )}

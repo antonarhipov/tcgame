@@ -18,7 +18,7 @@ interface GameLayoutProps {
  */
 export function GameLayout({ children, console, meter, className = '' }: GameLayoutProps) {
   return (
-    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 ${className}`}>
+    <div className={`min-h-screen bg-[var(--bg)] ${className}`}>
       {/* Main content area */}
       <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
         {/* Left side: Scenario/A-B choices */}
@@ -29,13 +29,13 @@ export function GameLayout({ children, console, meter, className = '' }: GameLay
         </div>
 
         {/* Right side: Console */}
-        <div className="bg-gray-100 dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700">
+        <div className="bg-[var(--surface-1)] border-l border-[var(--border)]">
           <div className="h-full flex flex-col">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <div className="p-4 border-b border-[var(--divider)]">
+              <h2 className="text-lg font-semibold text-[var(--text-hard)]">
                 Junie Console
               </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-[var(--text-average)]">
                 AI development in progress...
               </p>
             </div>
@@ -47,7 +47,7 @@ export function GameLayout({ children, console, meter, className = '' }: GameLay
       </div>
 
       {/* Bottom: Meter/Insights */}
-      <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+      <div className="border-t border-[var(--border)] bg-[var(--surface-1)]">
         <div className="p-4">
           {meter || <MeterPlaceholder />}
         </div>
@@ -118,8 +118,8 @@ function ConsolePlaceholder() {
             <div 
               key={index}
               className={isUnluck
-                ? 'text-red-600 dark:text-red-400'
-                : 'text-green-600 dark:text-green-400 animate-pulse'}
+                ? 'text-[var(--color-pink)]'
+                : 'text-[var(--text-average)] animate-pulse'}
               style={!isUnluck ? { animationDelay: `${index * 100}ms` } : undefined}
             >
               {log}
@@ -127,10 +127,10 @@ function ConsolePlaceholder() {
           );
         })}
       </div>
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+      <div className="p-4 border-t border-[var(--divider)]">
         <div className="flex items-center space-x-2">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+          <div className="w-2 h-2 bg-[var(--color-primary)] rounded-full animate-pulse"></div>
+          <span className="text-xs text-[var(--text-pale)]">
             Console active - Phase 4 implementation pending
           </span>
         </div>
@@ -146,10 +146,10 @@ function MeterPlaceholder() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <h3 className="text-lg font-semibold text-[var(--text-hard)]">
           Scaling Meter
         </h3>
-        <div className="text-sm text-gray-500 dark:text-gray-400">
+        <div className="text-sm text-[var(--text-pale)]">
           Phase 5 implementation pending
         </div>
       </div>
@@ -157,39 +157,45 @@ function MeterPlaceholder() {
       {/* Placeholder meter bar */}
       <div className="space-y-4">
         <div className="flex items-center space-x-4">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300 w-20">
+          <span className="text-sm font-medium text-[var(--text-average)] w-20">
             Overall
           </span>
-          <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-4">
+          <div className="flex-1 bg-[var(--surface-2)] rounded-full h-4">
             <div 
-              className="bg-gradient-to-r from-blue-500 to-purple-600 h-4 rounded-full transition-all duration-500"
-              style={{ width: '42%' }}
+              className="h-4 rounded-full transition-all duration-500"
+              style={{ 
+                width: '42%',
+                background: 'var(--gradient-a)'
+              }}
             ></div>
           </div>
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300 w-12">
+          <span className="text-sm font-medium text-[var(--text-average)] w-12">
             42/100
           </span>
         </div>
 
         {/* Dimension placeholders */}
         {[
-          { label: 'Revenue (R)', value: 35, color: 'from-green-500 to-green-600' },
-          { label: 'Users (U)', value: 48, color: 'from-blue-500 to-blue-600' },
-          { label: 'System (S)', value: 52, color: 'from-purple-500 to-purple-600' },
-          { label: 'Customer (C)', value: 38, color: 'from-pink-500 to-pink-600' },
-          { label: 'Investor (I)', value: 45, color: 'from-yellow-500 to-yellow-600' }
+          { label: 'Revenue (R)', value: 35, color: 'var(--color-orange)' },
+          { label: 'Users (U)', value: 48, color: 'var(--color-primary)' },
+          { label: 'System (S)', value: 52, color: 'var(--color-magenta)' },
+          { label: 'Customer (C)', value: 38, color: 'var(--color-pink)' },
+          { label: 'Investor (I)', value: 45, color: 'var(--color-orange)' }
         ].map((dim, index) => (
           <div key={index} className="flex items-center space-x-4 text-sm">
-            <span className="text-gray-600 dark:text-gray-400 w-20">
+            <span className="text-[var(--text-average)] w-20">
               {dim.label}
             </span>
-            <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div className="flex-1 bg-[var(--surface-2)] rounded-full h-2">
               <div 
-                className={`bg-gradient-to-r ${dim.color} h-2 rounded-full transition-all duration-500`}
-                style={{ width: `${dim.value}%` }}
+                className="h-2 rounded-full transition-all duration-500"
+                style={{ 
+                  width: `${dim.value}%`,
+                  backgroundColor: dim.color
+                }}
               ></div>
             </div>
-            <span className="text-gray-600 dark:text-gray-400 w-12">
+            <span className="text-[var(--text-average)] w-12">
               {dim.value}
             </span>
           </div>
@@ -197,11 +203,11 @@ function MeterPlaceholder() {
       </div>
 
       {/* Insights placeholder */}
-      <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-        <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">
+      <div className="mt-6 p-4 bg-[var(--surface-2)] rounded-md border border-[var(--border)]">
+        <h4 className="font-medium text-[var(--text-hard)] mb-2">
           Insights
         </h4>
-        <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+        <div className="text-sm text-[var(--text-average)] space-y-1">
           <p>• <strong>Top Driver:</strong> System reliability improvements</p>
           <p>• <strong>Bottleneck:</strong> Revenue generation needs attention</p>
           <p>• <strong>Tier:</strong> Finding Fit (30-49 range)</p>

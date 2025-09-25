@@ -97,6 +97,12 @@
     - [SKIPPED] 11.1 Run axe automated checks; prevent keyboard traps; ensure logical focus order and visible focus.
     - [SKIPPED] 11.2 High-contrast theme tokens; maintain WCAG AA contrast for text and indicators.
     - [SKIPPED] 11.3 Screen reader labels for meter changes and console events; announce feedback updates.
+    - [x] 11.4 Draft KotlinConf-inspired UI guidelines and dark theme requirements in docs/ui-design.md (done: 2025-09-25)
+    - [x] 11.5 Implement dark theme CSS variables and Tailwind mapping per docs/ui-design.md (done: 2025-09-25)
+    - [x] 11.6 Apply theme to core components (Header, Buttons, Cards, Inputs, Meter) (done: 2025-09-25)
+    - [ ] 11.7 Verify WCAG AA contrast with axe (Playwright) and update docs/ui-design.md if adjustments are needed
+    - [x] 11.8 KotlinConf UI theme implementation (see docs/ui-design.md) (done: 2025-09-25)
+    - [x] 11.9 Fix feedback cards styling to match KotlinConf dark theme (done: 2025-09-25)
 
 12. [SKIPPED] Phase 11 — A/B packs and operator tooling
     - [SKIPPED] 12.1 Pack version selector UI (dev/operator only); surface version id in UI and analytics events.
@@ -119,8 +125,8 @@
     - [SKIPPED] 14.4 Logging strategy: non-PII client logs with severity; suppress in production except errors.
     - [x] 14.5 Write "How to reach 80+ points" guide (docs/how-to-reach-80+.md) (done: 2025-09-24)
     - [x] 14.6 Align docs with current meter tuning (μ/σ=10/10, randomness ±5); correct 80+ guidance; add troubleshooting note (done: 2025-09-24)
-    - [ ] 14.7 Update docs/unluck.md with final config names; link from docs/scaling-meter.md and docs/spec.md.
-    - [ ] 14.8 Add troubleshooting: forcing Unluck via seed/operator; explain factorRange and narrative mapping.
+    - [x] 14.7 Update docs/unluck.md with final config names; link from docs/scaling-meter.md and docs/spec.md.
+    - [x] 14.8 Add troubleshooting: forcing Unluck via seed/operator; explain factorRange and narrative mapping.
 
 15. [SKIPPED] Success metrics verification
     - [SKIPPED] 15.1 Core flow completion rate >95% over test sessions.

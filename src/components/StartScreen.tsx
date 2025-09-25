@@ -36,22 +36,22 @@ export function StartScreen({ onStartNew, onResume }: StartScreenProps) {
       <div className="max-w-2xl mx-auto text-center space-y-8">
         {/* Header */}
         <div className="space-y-4">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-4xl md:text-5xl font-bold text-[var(--text-hard)]">
             {currentPack.title}
           </h1>
           {currentPack.description && (
-            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
+            <p className="text-lg text-[var(--text-average)] max-w-xl mx-auto">
               {currentPack.description}
             </p>
           )}
         </div>
 
         {/* Game description */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <div className="bg-[var(--surface-1)] rounded-md p-6 border border-[var(--border)]">
+          <h2 className="text-xl font-semibold text-[var(--text-hard)] mb-4">
             How it works
           </h2>
-          <div className="text-left space-y-3 text-gray-700 dark:text-gray-300">
+          <div className="text-left space-y-3 text-[var(--text-average)]">
             <p>• Navigate through 5 stages of startup growth</p>
             <p>• Make strategic decisions that impact your scaling meter</p>
             <p>• Watch Junie (your AI cofounder) implement your choices</p>
@@ -70,7 +70,13 @@ export function StartScreen({ onStartNew, onResume }: StartScreenProps) {
         <div className="space-y-4">
           <button
             onClick={handleNewRun}
-            className="w-full max-w-sm mx-auto block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="w-full max-w-sm mx-auto block text-white font-semibold py-4 px-8 rounded-[20px] transition-all duration-200 focus:outline-none hover:brightness-110"
+            style={{ 
+              background: 'var(--gradient-a)',
+              boxShadow: 'var(--shadow-focus)'
+            }}
+            onFocus={(e) => e.target.style.boxShadow = 'var(--shadow-focus)'}
+            onBlur={(e) => e.target.style.boxShadow = 'none'}
           >
             Start New Run
           </button>
@@ -79,13 +85,23 @@ export function StartScreen({ onStartNew, onResume }: StartScreenProps) {
             <div className="space-y-2">
               <button
                 onClick={handleResume}
-                className="w-full max-w-sm mx-auto block bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-8 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                className="w-full max-w-sm mx-auto block bg-transparent border border-[var(--border)] text-[var(--text-hard)] font-semibold py-4 px-8 rounded-[20px] transition-all duration-200 focus:outline-none hover:bg-[rgba(255,255,255,0.06)]"
+                style={{ 
+                  boxShadow: 'none'
+                }}
+                onFocus={(e) => e.target.style.boxShadow = 'var(--shadow-focus)'}
+                onBlur={(e) => e.target.style.boxShadow = 'none'}
               >
                 Resume Progress
               </button>
               <button
                 onClick={handleReset}
-                className="w-full max-w-sm mx-auto block bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-sm"
+                className="w-full max-w-sm mx-auto block bg-transparent text-[var(--text-average)] font-medium py-2 px-6 rounded-md transition-all duration-200 focus:outline-none hover:text-[var(--color-pink)] hover:underline text-sm"
+                style={{ 
+                  boxShadow: 'none'
+                }}
+                onFocus={(e) => e.target.style.boxShadow = 'var(--shadow-focus)'}
+                onBlur={(e) => e.target.style.boxShadow = 'none'}
               >
                 Reset Progress
               </button>
@@ -94,13 +110,13 @@ export function StartScreen({ onStartNew, onResume }: StartScreenProps) {
         </div>
 
         {/* Pack info */}
-        <div className="text-sm text-gray-500 dark:text-gray-400 space-y-1">
+        <div className="text-sm text-[var(--text-pale)] space-y-1">
           <p>Content Pack: {currentPack.id} v{currentPack.version}</p>
           {currentPack.author && <p>by {currentPack.author}</p>}
         </div>
 
         {/* Keyboard shortcuts hint */}
-        <div className="text-xs text-gray-400 dark:text-gray-500 border-t border-gray-200 dark:border-gray-700 pt-4">
+        <div className="text-xs text-[var(--text-pale)] border-t border-[var(--divider)] pt-4">
           <p>💡 Tip: Use Tab and Enter keys to navigate</p>
         </div>
       </div>

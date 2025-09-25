@@ -124,10 +124,10 @@ export function StepScreen({ onChoiceMade, onAdvanceToFeedback }: StepScreenProp
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+          <h2 className="text-2xl font-bold text-[var(--text-hard)] mb-4">
             Step not found
           </h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-[var(--text-average)]">
             Unable to load step {currentStep}
           </p>
         </div>
@@ -140,32 +140,32 @@ export function StepScreen({ onChoiceMade, onAdvanceToFeedback }: StepScreenProp
       <div className="space-y-8">
         {/* Step header */}
         <div className="text-center space-y-2">
-          <div className="text-sm font-medium text-blue-600 dark:text-blue-400">
+          <div className="text-sm font-medium text-[var(--color-primary)]">
             Step {currentStep} of 5
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-3xl font-bold text-[var(--text-hard)]">
             {stepData.title}
           </h1>
           {stepData.subtitle && (
-            <p className="text-lg text-gray-600 dark:text-gray-400">
+            <p className="text-lg text-[var(--text-average)]">
               {stepData.subtitle}
             </p>
           )}
         </div>
 
         {/* Scenario */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <div className="bg-[var(--surface-1)] rounded-md p-6 border border-[var(--border)]">
+          <h2 className="text-xl font-semibold text-[var(--text-hard)] mb-4">
             Scenario
           </h2>
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+          <p className="text-[var(--text-average)] leading-relaxed">
             {stepData.scenario}
           </p>
         </div>
 
         {/* Choices */}
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center">
+          <h2 className="text-xl font-semibold text-[var(--text-hard)] text-center">
             What do you choose?
           </h2>
           
@@ -199,7 +199,13 @@ export function StepScreen({ onChoiceMade, onAdvanceToFeedback }: StepScreenProp
               ref={continueRef}
               onClick={handleContinue}
               disabled={isProcessing}
-              className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+              className="text-white font-semibold py-3 px-8 rounded-[20px] transition-all duration-200 focus:outline-none hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ 
+                background: isProcessing ? 'var(--surface-2)' : 'var(--gradient-a)',
+                boxShadow: 'none'
+              }}
+              onFocus={(e) => e.target.style.boxShadow = 'var(--shadow-focus)'}
+              onBlur={(e) => e.target.style.boxShadow = 'none'}
             >
               {isProcessing ? 'Processing...' : 'Continue to Feedback'}
             </button>
@@ -207,7 +213,7 @@ export function StepScreen({ onChoiceMade, onAdvanceToFeedback }: StepScreenProp
         )}
 
         {/* Keyboard hints */}
-        <div className="text-center text-xs text-gray-400 dark:text-gray-500 space-y-1">
+        <div className="text-center text-xs text-[var(--text-pale)] space-y-1">
           <p>💡 Use arrow keys to navigate, Enter/Space to select</p>
           <p>Or press 1 for Option A, 2 for Option B</p>
         </div>
@@ -235,13 +241,18 @@ const ChoiceButton = React.forwardRef<HTMLButtonElement, ChoiceButtonProps>(
         onClick={onClick}
         disabled={isDisabled}
         className={`
-          p-6 rounded-lg border-2 text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+          p-6 rounded-md border-2 text-left transition-all duration-200 focus:outline-none
           ${isSelected 
-            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+            ? 'border-[var(--color-primary)] bg-[var(--surface-2)]' 
+            : 'border-[var(--border)] bg-[var(--surface-1)] hover:border-[var(--color-primary)] hover:bg-[var(--surface-2)]'
           }
           ${isDisabled ? 'opacity-75 cursor-not-allowed' : 'cursor-pointer'}
         `}
+        style={{
+          boxShadow: 'none'
+        }}
+        onFocus={(e) => e.target.style.boxShadow = 'var(--shadow-focus)'}
+        onBlur={(e) => e.target.style.boxShadow = 'none'}
       >
         <div className="space-y-3">
           {/* Choice header */}
@@ -249,14 +260,14 @@ const ChoiceButton = React.forwardRef<HTMLButtonElement, ChoiceButtonProps>(
             <div className={`
               inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold
               ${isSelected 
-                ? 'bg-blue-500 text-white' 
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                ? 'bg-[var(--color-primary)] text-white' 
+                : 'bg-[var(--surface-2)] text-[var(--text-average)]'
               }
             `}>
               {choice}
             </div>
             {isSelected && (
-              <div className="text-blue-500 text-sm font-medium">
+              <div className="text-[var(--color-primary)] text-sm font-medium">
                 ✓ Selected
               </div>
             )}
@@ -264,16 +275,16 @@ const ChoiceButton = React.forwardRef<HTMLButtonElement, ChoiceButtonProps>(
 
           {/* Choice content */}
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            <h3 className="font-semibold text-[var(--text-hard)] mb-2">
               {choiceData.label}
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+            <p className="text-sm text-[var(--text-average)] leading-relaxed">
               {choiceData.body}
             </p>
           </div>
 
           {/* Delta preview */}
-          <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex flex-wrap gap-2 pt-2 border-t border-[var(--divider)]">
             {Object.entries(choiceData.delta).map(([key, value]) => {
               if (value === 0) return null;
               return (
@@ -282,10 +293,15 @@ const ChoiceButton = React.forwardRef<HTMLButtonElement, ChoiceButtonProps>(
                   className={`
                     inline-flex items-center px-2 py-1 rounded text-xs font-medium
                     ${value > 0 
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
-                      : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                      ? 'text-[var(--color-primary)]' 
+                      : 'text-[var(--color-pink)]'
                     }
                   `}
+                  style={{
+                    backgroundColor: value > 0 
+                      ? 'rgba(143, 0, 231, 0.1)' 
+                      : 'rgba(224, 1, 137, 0.1)'
+                  }}
                 >
                   {key}: {value > 0 ? '+' : ''}{value}
                 </span>
